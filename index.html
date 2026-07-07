@@ -3133,7 +3133,7 @@ function submitPaymentRequest(){
     msgEl.classList.add('show-success'); return;
   }
 
-  STATE.pendingPayments.push({
+  const payment = {
     id: Math.random().toString(36).substring(2,10).toUpperCase(),
     studentName: name,
     courseId: payCourseId,
@@ -3143,8 +3143,23 @@ function submitPaymentRequest(){
     momoType: document.querySelector('.momo-option.active .momo-badge')?.textContent || 'MTN',
     date: new Date().toLocaleString(),
     status: 'pending'
-  });
+  };
+  STATE.pendingPayments.push(payment);
   saveState(STATE);
+
+  // Also update allUsers so admin can see it
+  const allUsers = loadAllUsers();
+  const me = allUsers.find(u => u.name === name || u.email === STATE.userEmail);
+  if(me){
+    if(!me.state) me.state = {unlocked:{}, pendingPayments:[]};
+    if(!me.state.pendingPayments) me.state.pendingPayments = [];
+    me.state.pendingPayments.push(payment);
+    me.state.unlocked = me.state.unlocked || {};
+    saveAllUsers(allUsers);
+    const myUid = STATE.uid || name.replace(/[^a-zA-Z0-9]/g,'_');
+    fbSet('users', myUid, me.state);
+  }
+
   updateAdminBadge();
 
   msgEl.textContent = LANG==='en'
