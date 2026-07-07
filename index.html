@@ -587,6 +587,7 @@ table.admin-table{width:100%;border-collapse:collapse;font-size:.8rem;}
 .protip b{color:#0d3f66;}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
@@ -614,15 +615,24 @@ table.admin-table{width:100%;border-collapse:collapse;font-size:.8rem;}
       <button class="gate-btn" onclick="wNext(2)">Continue →</button>
     </div>
 
-    <!-- STEP 2: name -->
+    <!-- STEP 2: email + password -->
     <div class="w-step" id="wstep2">
       <div class="w-mascot-wrap">
         <div class="w-mascot" id="wMascot"></div>
-        <div class="w-speech" id="wSpeech">Hi! What's your name? 🌱</div>
+        <div class="w-speech" id="wSpeech">Welcome! Let's set up your account 🌱</div>
+      </div>
+      <div style="text-align:center;margin-bottom:12px;">
+        <button id="authTabRegister" class="gate-btn" style="background:var(--brand);margin-right:6px;" onclick="switchAuthTab('register')">Register</button>
+        <button id="authTabLogin" class="gate-btn" style="background:#888;" onclick="switchAuthTab('login')">Login</button>
       </div>
       <label class="w-input-label" id="wNameLabel">Your first name:</label>
-      <input class="gate-input" id="gateName" maxlength="30" placeholder="e.g. Junior" onkeypress="if(event.key==='Enter')wNext(3)">
-      <button class="gate-btn" onclick="wNext(3)" id="wNameBtn">Continue →</button>
+      <input class="gate-input" id="gateName" maxlength="30" placeholder="e.g. Junior">
+      <label class="w-input-label" style="margin-top:10px;">Email:</label>
+      <input class="gate-input" id="gateEmail" type="email" placeholder="e.g. junior@gmail.com">
+      <label class="w-input-label" style="margin-top:10px;">Password:</label>
+      <input class="gate-input" id="gatePassword" type="password" minlength="6" placeholder="Min 6 characters" onkeypress="if(event.key==='Enter')handleAuth()">
+      <p id="authError" style="color:#c0392b;font-size:.85rem;margin-top:8px;display:none;"></p>
+      <button class="gate-btn" onclick="handleAuth()" id="wNameBtn">Continue →</button>
       <p class="w-back"><a href="#" onclick="wBack(1);return false">← Back</a></p>
     </div>
 
@@ -1014,6 +1024,7 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const auth = firebase.auth();
 
 // ── Firebase helpers ──
 async function fbGet(collection, docId){
@@ -2510,10 +2521,13 @@ function loadState(){
 
 async function loadStateFromFirebase(){
   if(!STATE.user) return;
-  const uid = STATE.user.replace(/[^a-zA-Z0-9]/g,'_');
+  const uid = STATE.uid || STATE.user.replace(/[^a-zA-Z0-9]/g,'_');
   const data = await fbGet('users', uid);
   if(data){
     STATE = {...DEFAULT_STATE, ...data};
+    STATE.user = STATE.user || data.user;
+    STATE.userEmail = STATE.userEmail || data.userEmail;
+    STATE.uid = uid;
     localStorage.setItem('crState', JSON.stringify(STATE));
   }
 }
@@ -2521,7 +2535,7 @@ async function loadStateFromFirebase(){
 function saveState(s){
   localStorage.setItem('crState', JSON.stringify(s));
   if(s.user){
-    const uid = s.user.replace(/[^a-zA-Z0-9]/g,'_');
+    const uid = s.uid || s.user.replace(/[^a-zA-Z0-9]/g,'_');
     fbSet('users', uid, s);
   }
 }
@@ -2571,10 +2585,80 @@ function pickGateLang(l){
   document.getElementById('navLangFr')?.classList.toggle('active', l==='fr');
 }
 
+let authMode = 'register'; // 'register' or 'login'
+
+function switchAuthTab(mode){
+  authMode = mode;
+  document.getElementById('authTabRegister').style.background = mode==='register' ? 'var(--brand)' : '#888';
+  document.getElementById('authTabLogin').style.background = mode==='login' ? 'var(--brand)' : '#888';
+  document.getElementById('wNameLabel').textContent = mode==='register' ? (gateLang==='en' ? 'Your first name:' : 'Votre prénom :') : '';
+  document.getElementById('gateName').style.display = mode==='register' ? '' : 'none';
+  document.getElementById('authError').style.display = 'none';
+}
+
+function handleAuth(){
+  document.getElementById('authError').style.display = 'none';
+  const name = document.getElementById('gateName').value.trim();
+  const email = document.getElementById('gateEmail').value.trim();
+  const password = document.getElementById('gatePassword').value;
+
+  if(authMode==='register'){
+    if(!name || !email || !password){
+      showAuthError('Please fill in all fields.');
+      return;
+    }
+    if(password.length < 6){
+      showAuthError('Password must be at least 6 characters.');
+      return;
+    }
+    auth.createUserWithEmailAndPassword(email, password)
+      .then(cred => {
+        return cred.user.updateProfile({displayName: name}).then(() => {
+          STATE.user = name;
+          STATE.userEmail = email;
+          STATE.uid = cred.user.uid;
+          wNext(3);
+        });
+      })
+      .catch(err => {
+        if(err.code === 'auth/email-already-in-use'){
+          showAuthError('This email is already registered. Try Login instead.');
+        } else {
+          showAuthError(err.message);
+        }
+      });
+  } else {
+    if(!email || !password){
+      showAuthError('Please enter email and password.');
+      return;
+    }
+    auth.signInWithEmailAndPassword(email, password)
+      .then(cred => {
+        const name = cred.user.displayName || email.split('@')[0];
+        STATE.user = name;
+        STATE.userEmail = email;
+        STATE.uid = cred.user.uid;
+        wNext(3);
+      })
+      .catch(err => {
+        showAuthError('Wrong email or password.');
+      });
+  }
+}
+
+function showAuthError(msg){
+  const el = document.getElementById('authError');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
 function wNext(step){
   if(step===3){
-    const name = document.getElementById('gateName').value.trim();
-    if(!name) return;
+    // Auth handled separately via handleAuth()
+    if(authMode==='register'){
+      const name = document.getElementById('gateName').value.trim();
+      if(!name) return;
+    }
   }
   for(let i=1;i<=4;i++){
     document.getElementById('wstep'+i).classList.toggle('active', i===step);
@@ -2584,22 +2668,22 @@ function wNext(step){
   if(step===2){
     const mascotEl = document.getElementById('wMascot');
     if(mascotEl && !mascotEl.innerHTML) mascotEl.innerHTML = mascotSVG(FOUNDER_MASCOT);
-    document.getElementById('wSpeech').textContent = gateLang==='en' ? "Hi! What's your name? 🌱" : "Salut ! C'est quoi ton nom ? 🌱";
+    document.getElementById('wSpeech').textContent = gateLang==='en' ? "Create an account or login! 🌱" : "Crée un compte ou connecte-toi ! 🌱";
     document.getElementById('wNameLabel').textContent = gateLang==='en' ? "Your first name:" : "Votre prénom :";
   }
   if(step===3){
     document.getElementById('wGoalTitle').textContent = gateLang==='en' ? "What is your goal?" : "Quel est ton objectif ?";
   }
   if(step===4){
-    const name = document.getElementById('gateName').value.trim();
+    const name = STATE.user || document.getElementById('gateName').value.trim();
     document.getElementById('wReadyTitle').textContent = gateLang==='en' ? "You're all set!" : "Tout est prêt !";
     document.getElementById('wReadyMsg').textContent = gateLang==='en'
       ? `Welcome to Code Roots, ${name}! Your journey starts now.`
       : `Bienvenue chez Code Roots, ${name} ! Ton parcours commence maintenant.`;
     const goalLabel = gateGoal ? GOAL_TEXT[gateGoal][gateLang] : '—';
     document.getElementById('wSummary').innerHTML = gateLang==='en'
-      ? `<b>👤 Name:</b> ${name}<br><b>🌍 Language:</b> English<br><b>🎯 Goal:</b> ${goalLabel}`
-      : `<b>👤 Nom :</b> ${name}<br><b>🌍 Langue :</b> Français<br><b>🎯 Objectif :</b> ${goalLabel}`;
+      ? `<b>👤 Name:</b> ${name}<br><b>📧 Email:</b> ${STATE.userEmail||'—'}<br><b>🌍 Language:</b> English<br><b>🎯 Goal:</b> ${goalLabel}`
+      : `<b>👤 Nom :</b> ${name}<br><b>📧 Email :</b> ${STATE.userEmail||'—'}<br><b>🌍 Langue :</b> Français<br><b>🎯 Objectif :</b> ${goalLabel}`;
   }
 }
 function wBack(step){ wNext(step); }
@@ -2612,27 +2696,44 @@ function selectGoal(goal, el){
   btn.disabled = false; btn.style.opacity = 1;
 }
 
-function startApp(){
-  const name = document.getElementById('gateName').value.trim();
+async function startApp(){
+  const name = STATE.user || document.getElementById('gateName').value.trim();
   if(!name) return;
-  STATE.user = name;
-  STATE.goal = gateGoal;
-  if(!STATE.joined) STATE.joined = new Date().toLocaleDateString();
-  saveState(STATE);
+  const email = STATE.userEmail || '';
+  const fbUid = STATE.uid || name.replace(/[^a-zA-Z0-9]/g,'_');
+
+  // Try to load existing data from Firebase using Auth UID
+  const fbData = await fbGet('users', fbUid);
+  if(fbData){
+    STATE = {...DEFAULT_STATE, ...fbData};
+    STATE.user = name;
+    STATE.userEmail = email;
+    STATE.uid = fbUid;
+    localStorage.setItem('crState', JSON.stringify(STATE));
+    addNotif('👋 Welcome Back!', `Good to see you again, ${name}! Your progress has been loaded.`);
+  } else {
+    STATE.user = name;
+    STATE.userEmail = email;
+    STATE.uid = fbUid;
+    STATE.goal = gateGoal;
+    if(!STATE.joined) STATE.joined = new Date().toLocaleDateString();
+    saveState(STATE);
+  }
 
   // Track all users for admin
   const allUsers = loadAllUsers();
-  const existing = allUsers.find(u=>u.name===name);
+  const existing = allUsers.find(u=>u.name===name || u.email===email);
   if(!existing){
-    allUsers.push({name, joined:STATE.joined, state:STATE, earlyReward:false});
+    allUsers.push({name, email, joined:STATE.joined, state:STATE, earlyReward:false});
     saveAllUsers(allUsers);
     // Check if early user (first 10)
+    const earlyMsg = localStorage.getItem('crEarlyRewardMsg') || '🎉 You are one of the first 10 users! Enjoy a FREE course unlock as our gift!';
     if(allUsers.length <= 10){
-      const earlyMsg = localStorage.getItem('crEarlyRewardMsg') || '🎉 You are one of the first 10 users! Enjoy a FREE course unlock as our gift!';
       addNotif('🏅 Welcome, Early User!', earlyMsg);
     }
   } else {
     existing.state = STATE;
+    existing.email = email;
     saveAllUsers(allUsers);
   }
 
@@ -3070,8 +3171,11 @@ async function checkAdminPin(){
     document.getElementById('adminPinErr').classList.add('show');
   }
 }
-function openAdminDash(){
+async function openAdminDash(){
   document.getElementById('adminDashOverlay').classList.add('show');
+
+  // Load fresh data from Firebase first
+  await loadFirebaseData();
 
   // Populate student select for manual unlock
   const allUsers = loadAllUsers();
@@ -3100,7 +3204,7 @@ function openAdminDash(){
 }
 function closeAdminDash(){ document.getElementById('adminDashOverlay').classList.remove('show'); }
 
-function adminUnlockCourse(){
+async function adminUnlockCourse(){
   const courseId = document.getElementById('unlockCourseSelect').value;
   const targetName = document.getElementById('unlockStudentSelect').value;
   const c = COURSES.find(x=>x.id===courseId);
@@ -3114,6 +3218,9 @@ function adminUnlockCourse(){
     if(!target.state.unlocked) target.state.unlocked = {};
     target.state.unlocked[courseId] = true;
     saveAllUsers(allUsers);
+    // Save to Firebase for the target student
+    const targetUid = target.uid || targetName.replace(/[^a-zA-Z0-9]/g,'_');
+    await fbSet('users', targetUid, target.state);
   }
 
   // Also unlock for current user if they are the target
@@ -3131,12 +3238,25 @@ function adminUnlockCourse(){
   openAdminDash();
 }
 
-function approvePayment(i){
+async function approvePayment(i){
   const p = STATE.pendingPayments[i];
   if(!p || p.status !== 'pending') return;
   p.status = 'approved';
   STATE.unlocked[p.courseId] = true;
   saveState(STATE);
+
+  // Also unlock for the student in Firebase
+  const allUsers = loadAllUsers();
+  const target = allUsers.find(u=>u.name===p.studentName);
+  if(target){
+    if(!target.state) target.state = {unlocked:{}};
+    if(!target.state.unlocked) target.state.unlocked = {};
+    target.state.unlocked[p.courseId] = true;
+    saveAllUsers(allUsers);
+    const targetUid = target.uid || p.studentName.replace(/[^a-zA-Z0-9]/g,'_');
+    await fbSet('users', targetUid, target.state);
+  }
+
   renderAdminPending();
   renderAdminStats();
   renderAdminStudents();
@@ -3235,7 +3355,7 @@ function loadNotifs(){
 function saveNotifs(n){
   localStorage.setItem('crNotifs', JSON.stringify(n));
   if(STATE.user){
-    const uid = STATE.user.replace(/[^a-zA-Z0-9]/g,'_');
+    const uid = STATE.uid || STATE.user.replace(/[^a-zA-Z0-9]/g,'_');
     fbSet('notifs', uid, {notifs: n});
   }
 }
@@ -3331,6 +3451,9 @@ function saveAllPrices(){
       c.free = (newPrice === 0);
     }
   });
+  const pricesData = {};
+  COURSES.forEach(c => { pricesData[c.id] = {price:c.price, free:c.free}; });
+  fbSet('config', 'coursePrices', pricesData);
   const msg = document.getElementById('priceSaveMsg');
   msg.style.display = 'block';
   msg.textContent = '✅ All prices saved! Reload to see changes on course cards.';
@@ -3506,7 +3629,7 @@ async function loadAllUsersFromFirebase(){
   return null;
 }
 
-function sendGift(){
+async function sendGift(){
   const recipient = document.getElementById('giftRecipient').value;
   const type = document.getElementById('giftType').value;
   const courseId = document.getElementById('giftCourse').value;
@@ -3532,6 +3655,9 @@ function sendGift(){
       user.state.unlocked = user.state.unlocked || {};
       user.state.unlocked[courseId] = true;
       saveAllUsers(users);
+      // Save to Firebase for the recipient
+      const recipientUid = user.uid || recipient.replace(/[^a-zA-Z0-9]/g,'_');
+      await fbSet('users', recipientUid, user.state);
     }
   }
 
@@ -3619,7 +3745,7 @@ function renderEarlyUsers(){
   }).join('');
 }
 
-function grantEarlyReward(userName, index){
+async function grantEarlyReward(userName, index){
   const earlyReward = localStorage.getItem('crEarlyRewardMsg') || '🎉 You are one of the first 10 users! Enjoy a FREE course unlock!';
   addNotif('🏅 Early User Reward!', `${earlyReward} — Granted to ${userName}`);
 
@@ -3633,6 +3759,9 @@ function grantEarlyReward(userName, index){
       user.state.unlocked[firstPaid.id] = true;
       user.earlyReward = true;
       saveAllUsers(allUsers);
+      // Save to Firebase for the user
+      const userUid = user.uid || userName.replace(/[^a-zA-Z0-9]/g,'_');
+      await fbSet('users', userUid, user.state);
     }
   }
 
@@ -4098,21 +4227,32 @@ function sbxReveal(uid){
 async function loadFirebaseData(){
   try{
     // Load global config
-    const [phones, gifts, allUsers, earlyMsg] = await Promise.all([
+    const [phones, gifts, allUsers, earlyMsg, coursePrices, adminPin] = await Promise.all([
       fbGet('config','phones'),
       fbGet('config','gifts'),
       fbGet('config','allUsers'),
-      fbGet('config','earlyRewardMsg')
+      fbGet('config','earlyRewardMsg'),
+      fbGet('config','coursePrices'),
+      fbGet('config','adminPin')
     ]);
     if(phones && phones.phones) localStorage.setItem('crPhones', JSON.stringify(phones.phones));
     if(gifts && gifts.gifts) localStorage.setItem('crGifts', JSON.stringify(gifts.gifts));
     if(allUsers && allUsers.users) localStorage.setItem('crAllUsers', JSON.stringify(allUsers.users));
     if(earlyMsg && earlyMsg.msg) localStorage.setItem('crEarlyRewardMsg', earlyMsg.msg);
+    if(adminPin && adminPin.pin) localStorage.setItem('crAdminPin', adminPin.pin);
+    if(coursePrices){
+      COURSES.forEach(c => {
+        if(coursePrices[c.id]){
+          c.price = coursePrices[c.id].price;
+          c.free = coursePrices[c.id].free;
+        }
+      });
+    }
 
     // Load user-specific data
     if(STATE.user){
       await loadStateFromFirebase();
-      const uid = STATE.user.replace(/[^a-zA-Z0-9]/g,'_');
+      const uid = STATE.uid || STATE.user.replace(/[^a-zA-Z0-9]/g,'_');
       const userNotifs = await fbGet('notifs', uid);
       if(userNotifs && userNotifs.notifs) localStorage.setItem('crNotifs', JSON.stringify(userNotifs.notifs));
     }
@@ -4124,6 +4264,18 @@ window.addEventListener('load', async ()=>{
   renderNotifDot();
   initParticles();
   launchConfetti(15);
+
+  // Check if user is already logged in via Firebase Auth
+  auth.onAuthStateChanged(async (user) => {
+    if(user && !STATE.user){
+      STATE.user = user.displayName || user.email.split('@')[0];
+      STATE.userEmail = user.email;
+      STATE.uid = user.uid;
+      await loadStateFromFirebase();
+      renderNotifDot();
+    }
+  });
+
   await loadFirebaseData();
   renderNotifDot();
   if(STATE.user){
