@@ -3239,32 +3239,50 @@ async function adminUnlockCourse(){
 }
 
 async function approvePayment(i){
-  const p = STATE.pendingPayments[i];
-  if(!p || p.status !== 'pending') return;
-  p.status = 'approved';
-  STATE.unlocked[p.courseId] = true;
-  saveState(STATE);
-
-  // Also unlock for the student in Firebase
+  // Rebuild the allPayments array to find the right one
   const allUsers = loadAllUsers();
-  const target = allUsers.find(u=>u.name===p.studentName);
+  let allPayments = [];
+  allUsers.forEach(u => {
+    if(u.state && u.state.pendingPayments){
+      u.state.pendingPayments.forEach(p => {
+        p._ownerName = u.name;
+        allPayments.push(p);
+      });
+    }
+  });
+  (STATE.pendingPayments||[]).forEach(p => {
+    if(!allPayments.find(x=>x.id===p.id)) allPayments.push(p);
+  });
+  const p = allPayments[i];
+  if(!p || p.status !== 'pending') return;
+
+  // Find the student owner and update their state
+  const target = allUsers.find(u => u.name === p._ownerName || u.name === p.studentName);
   if(target){
-    if(!target.state) target.state = {unlocked:{}};
+    if(!target.state) target.state = {unlocked:{}, pendingPayments:[]};
     if(!target.state.unlocked) target.state.unlocked = {};
+    if(!target.state.pendingPayments) target.state.pendingPayments = [];
+    // Update payment status in student's state
+    const payInStudent = target.state.pendingPayments.find(x=>x.id===p.id);
+    if(payInStudent) payInStudent.status = 'approved';
     target.state.unlocked[p.courseId] = true;
     saveAllUsers(allUsers);
-    const targetUid = target.uid || p.studentName.replace(/[^a-zA-Z0-9]/g,'_');
+    const targetUid = target.uid || target.name.replace(/[^a-zA-Z0-9]/g,'_');
     await fbSet('users', targetUid, target.state);
   }
+
+  // Also update current STATE if it's the admin's own payment
+  const ownPay = (STATE.pendingPayments||[]).find(x=>x.id===p.id);
+  if(ownPay) ownPay.status = 'approved';
+  STATE.unlocked[p.courseId] = true;
+  saveState(STATE);
 
   renderAdminPending();
   renderAdminStats();
   renderAdminStudents();
   renderCourseGrid();
   updateAdminBadge();
-  // Send notification
   addNotif('✅ Payment Approved', `Your payment for ${p.courseName} has been approved! Course unlocked. 🎉`);
-  // toast
   const toast = document.createElement('div');
   toast.style.cssText = 'position:fixed;top:20px;right:20px;background:#1fa971;color:#fff;padding:14px 20px;border-radius:12px;font-weight:800;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.25);font-size:.9rem;';
   toast.textContent = `✅ ${p.studentName}'s ${p.courseName} approved & unlocked!`;
@@ -3272,12 +3290,37 @@ async function approvePayment(i){
   setTimeout(()=>toast.remove(), 3000);
 }
 
-function rejectPayment(i){
-  const p = STATE.pendingPayments[i];
+async function rejectPayment(i){
+  const allUsers = loadAllUsers();
+  let allPayments = [];
+  allUsers.forEach(u => {
+    if(u.state && u.state.pendingPayments){
+      u.state.pendingPayments.forEach(p => {
+        p._ownerName = u.name;
+        allPayments.push(p);
+      });
+    }
+  });
+  (STATE.pendingPayments||[]).forEach(p => {
+    if(!allPayments.find(x=>x.id===p.id)) allPayments.push(p);
+  });
+  const p = allPayments[i];
   if(!p || p.status !== 'pending') return;
   if(!confirm(`Reject payment request from ${p.studentName} for ${p.courseName}?`)) return;
-  p.status = 'rejected';
+
+  const target = allUsers.find(u => u.name === p._ownerName || u.name === p.studentName);
+  if(target && target.state && target.state.pendingPayments){
+    const payInStudent = target.state.pendingPayments.find(x=>x.id===p.id);
+    if(payInStudent) payInStudent.status = 'rejected';
+    saveAllUsers(allUsers);
+    const targetUid = target.uid || target.name.replace(/[^a-zA-Z0-9]/g,'_');
+    await fbSet('users', targetUid, target.state);
+  }
+
+  const ownPay = (STATE.pendingPayments||[]).find(x=>x.id===p.id);
+  if(ownPay) ownPay.status = 'rejected';
   saveState(STATE);
+
   addNotif('❌ Payment Rejected', `Payment request for ${p.courseName} from ${p.studentName} has been rejected.`);
   renderAdminPending();
   renderAdminStats();
@@ -3286,8 +3329,21 @@ function rejectPayment(i){
 
 function renderAdminStats(){
   const totalCourses = COURSES.length;
-  const pending = (STATE.pendingPayments||[]).filter(p=>p.status==='pending').length;
-  const approved = (STATE.pendingPayments||[]).filter(p=>p.status==='approved').length;
+  // Count pending/approved from ALL students
+  const allUsers = loadAllUsers();
+  let pending = 0, approved = 0;
+  allUsers.forEach(u => {
+    if(u.state && u.state.pendingPayments){
+      u.state.pendingPayments.forEach(p => {
+        if(p.status==='pending') pending++;
+        if(p.status==='approved') approved++;
+      });
+    }
+  });
+  (STATE.pendingPayments||[]).forEach(p => {
+    if(p.status==='pending') pending++;
+    if(p.status==='approved') approved++;
+  });
   const passedQuizzes = Object.values(STATE.quizScores||{}).filter(q=>q.passed).length;
   const unlockedCount = Object.values(STATE.unlocked||{}).filter(Boolean).length;
   document.getElementById('adminStats').innerHTML = `
@@ -3302,13 +3358,27 @@ function renderAdminStats(){
 function renderAdminPending(){
   const body = document.getElementById('adminPendingBody');
   if(!body) return;
-  const all = (STATE.pendingPayments||[]);
-  if(all.length===0){
+  // Collect pending payments from ALL students
+  const allUsers = loadAllUsers();
+  let allPayments = [];
+  allUsers.forEach(u => {
+    if(u.state && u.state.pendingPayments){
+      u.state.pendingPayments.forEach(p => {
+        p._ownerName = u.name;
+        allPayments.push(p);
+      });
+    }
+  });
+  // Also include current admin STATE (in case admin is also a student)
+  (STATE.pendingPayments||[]).forEach(p => {
+    if(!allPayments.find(x=>x.id===p.id)) allPayments.push(p);
+  });
+  if(allPayments.length===0){
     body.innerHTML = `<tr><td colspan="6"><div class="admin-empty">No payment requests yet.</div></td></tr>`;
     return;
   }
-  body.innerHTML = all.slice().reverse().map((p, ri)=>{
-    const i = all.length - 1 - ri;
+  body.innerHTML = allPayments.slice().reverse().map((p, ri)=>{
+    const i = allPayments.length - 1 - ri;
     const course = COURSES.find(x=>x.id===p.courseId);
     const badge = p.status==='pending'
       ? `<span class="admin-badge-used">⏳ Pending</span>`
@@ -3343,7 +3413,14 @@ function renderAdminStudents(){
 }
 
 function updateAdminBadge(){
-  const count = (STATE.pendingPayments||[]).filter(p=>p.status==='pending').length;
+  const allUsers = loadAllUsers();
+  let count = 0;
+  allUsers.forEach(u => {
+    if(u.state && u.state.pendingPayments){
+      count += u.state.pendingPayments.filter(p=>p.status==='pending').length;
+    }
+  });
+  count += (STATE.pendingPayments||[]).filter(p=>p.status==='pending').length;
   const dot = document.getElementById('adminPendingDot');
   if(dot){ dot.style.display = count > 0 ? 'block' : 'none'; dot.textContent = count; }
 }
