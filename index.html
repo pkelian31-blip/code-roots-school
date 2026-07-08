@@ -1186,14 +1186,22 @@ sim:`<div class="product" data-id="42" data-price="5000">
 <\/script>`}},
 {tag:"SEO",en:{t:"Meta Tags & SEO Basics",b:`Everything inside <code>&lt;head&gt;</code> is invisible on the page but crucial: <code>&lt;meta charset="UTF-8"&gt;</code> sets text encoding, <code>&lt;meta name="viewport"...&gt;</code> makes your site responsive on phones, and <code>&lt;meta name="description"&gt;</code> is what shows up under your link in Google search results.
 <p>Open Graph tags (<code>og:title</code>, <code>og:image</code>) control how your page looks when shared on WhatsApp, Facebook, or Twitter — worth setting for any real project.</p>`,
-sim:`<head>
+sim:`<!DOCTYPE html>
+<html>
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Code Roots School — learn to build for real.">
   <meta property="og:title" content="Code Roots School">
   <meta property="og:image" content="/preview.png">
   <title>Code Roots School</title>
-</head>`}},
+</head>
+<body>
+  <h1>Welcome to Code Roots</h1>
+  <p>Check the page source to see the meta tags in the head!</p>
+  <p><b>Tip:</b> Right-click → "View Page Source" to see the meta tags.</p>
+</body>
+</html>`}},
 {tag:"PROJECT",en:{t:"Capstone: Build Your First Real Page",b:`Time to combine everything: structure, links, an image, a form, and semantic tags into one real mini-portfolio page. This is the exact skeleton you'll style with CSS in the next course.
 <p>Notice how nothing here is about color or spacing — that's intentional. HTML's only job is structure and meaning. Once this feels natural, you're ready for CSS.</p>`,
 sim:`<!DOCTYPE html>
@@ -2058,7 +2066,258 @@ const mobileQuiz = shortQuiz([
  {en:{q:"Why might a small team choose React Native over separate native codebases?",o:["It's impossible to build native apps otherwise","One shared codebase for iOS and Android saves time and cost","It's required by Apple","Native apps are illegal for small teams"]},fr:{q:"Pourquoi une petite équipe choisirait-elle React Native plutôt que deux bases natives ?",o:["Il est impossible de créer des apps natives autrement","Une seule base de code partagée pour iOS et Android économise temps et coût","C'est exigé par Apple","Les apps natives sont interdites aux petites équipes"]},a:1}
 ]);
 
-/* ---------- COURSE REGISTRY ---------- */
+/* ============================================================
+   PRACTICAL EXERCISES & CORRECTIONS COURSE
+   ============================================================ */
+const practicalLessons = [
+{tag:"EXERCISE 1",en:{t:"HTML — Build a Complete Registration Form",b:`<b>🎯 Objective:</b> Build a fully accessible registration form for a school website.<br><br>
+<b>📋 Requirements:</b><br>
+• A form with: Full Name, Email, Password, Confirm Password, Phone Number<br>
+• Each input must have a &lt;label&gt; connected via for/id<br>
+• Use proper input types: text, email, password, tel<br>
+• Add required attribute on all fields<br>
+• Add a "Register" submit button<br>
+• Wrap everything in a semantic &lt;form&gt; tag<br>
+• Add a heading &lt;h2&gt; saying "Create Your Account"<br><br>
+<b>💡 Tips:</b><br>
+• Think about what method the form should use (POST for passwords!)<br>
+• Group related fields using &lt;fieldset&gt; and &lt;legend&gt;<br>
+• Add placeholder text for better UX`,
+sim:`<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Registration Form</title></head>
+<body>
+  <h2>Create Your Account</h2>
+  <form action="/register" method="POST">
+    <fieldset>
+      <legend>Personal Information</legend>
+      <label for="fullname">Full Name:</label><br>
+      <input type="text" id="fullname" name="fullname" required placeholder="e.g. Junior Kamga"><br><br>
+      <label for="email">Email:</label><br>
+      <input type="email" id="email" name="email" required placeholder="e.g. junior@gmail.com"><br><br>
+      <label for="phone">Phone Number:</label><br>
+      <input type="tel" id="phone" name="phone" required placeholder="e.g. +237 651 908 060"><br><br>
+    </fieldset>
+    <fieldset>
+      <legend>Security</legend>
+      <label for="password">Password:</label><br>
+      <input type="password" id="password" name="password" required minlength="8"><br><br>
+      <label for="confirm">Confirm Password:</label><br>
+      <input type="password" id="confirm" name="confirm" required minlength="8"><br><br>
+    </fieldset>
+    <button type="submit">Register</button>
+  </form>
+</body>
+</html>`}},
+{tag:"EXERCISE 2",en:{t:"HTML — Build a Product Card Component",b:`<b>🎯 Objective:</b> Build a product card that displays an image, title, price, rating, and a "Buy Now" button.<br><br>
+<b>📋 Requirements:</b><br>
+• Use &lt;article&gt; for the card container<br>
+• An &lt;img&gt; with meaningful alt text<br>
+• A title using &lt;h3&gt;<br>
+• Price displayed prominently<br>
+• Star rating (use ★ and ☆ characters)<br>
+• A "Buy Now" &lt;button&gt;<br>
+• Add data-price attribute on the card with the price value<br><br>
+<b>💡 Tips:</b><br>
+• Think about the hierarchy: image → title → price → rating → button<br>
+• Use &lt;span&gt; for price and rating to style them later<br>
+• The data-* attribute will be useful in JavaScript`,
+sim:`<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Product Card</title></head>
+<body>
+  <article class="product-card" data-price="15000">
+    <img src="sneakers.jpg" alt="Blue Nike sneakers on white background" width="300">
+    <h3>Nike Air Max 2026</h3>
+    <p class="price">15,000 FCFA</p>
+    <p class="rating">★★★★☆ (4/5)</p>
+    <button>Buy Now</button>
+  </article>
+</body>
+</html>`}},
+{tag:"EXERCISE 3",en:{t:"Full Page — Build a Restaurant Menu Page",b:`<b>🎯 Objective:</b> Build a complete restaurant menu page with header, sections, and a contact footer.<br><br>
+<b>📋 Requirements:</b><br>
+• &lt;header&gt; with restaurant name and navigation (Menu, About, Contact)<br>
+• &lt;main&gt; with 3 sections: Starters, Main Courses, Desserts<br>
+• Each section has an &lt;h2&gt; title and at least 3 menu items<br>
+• Each menu item: name (&lt;h3&gt;), description (&lt;p&gt;), price (&lt;span&gt;)<br>
+• Use &lt;table&gt; for one section to show data in tabular format<br>
+• &lt;footer&gt; with address, phone, and email<br>
+• Add at least 2 images with proper alt text<br><br>
+<b>💡 Tips:</b><br>
+• Use semantic tags: header, nav, main, section, footer<br>
+• The table is for comparing prices side by side`,
+sim:`<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Chef Kelian's Restaurant</title></head>
+<body>
+  <header>
+    <h1>🍽️ Chef Kelian's Restaurant</h1>
+    <nav>
+      <a href="#starters">Starters</a> |
+      <a href="#mains">Main Courses</a> |
+      <a href="#desserts">Desserts</a> |
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+  <main>
+    <section id="starters">
+      <h2>🥗 Starters</h2>
+      <article>
+        <h3>Grilled Chicken Wings</h3>
+        <p>Spicy marinated wings grilled to perfection, served with garlic sauce.</p>
+        <span>2,500 FCFA</span>
+      </article>
+      <article>
+        <h3>Fresh Garden Salad</h3>
+        <p>Mixed greens, tomatoes, cucumbers, and our house vinaigrette.</p>
+        <span>1,500 FCFA</span>
+      </article>
+    </section>
+    <section id="mains">
+      <h2>🍖 Main Courses</h2>
+      <table>
+        <thead><tr><th>Dish</th><th>Description</th><th>Price</th></tr></thead>
+        <tbody>
+          <tr><td>Grilled Tilapia</td><td>Fresh tilapia with plantains and spicy sauce</td><td>5,000 FCFA</td></tr>
+          <tr><td>Beef Ndolé</td><td>Traditional Cameroonian ndolé with beef and rice</td><td>4,000 FCFA</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section id="desserts">
+      <h2>🍰 Desserts</h2>
+      <img src="cake.jpg" alt="Chocolate cake with berries on top" width="200">
+      <p>Chocolate Lava Cake — 2,000 FCFA</p>
+    </section>
+  </main>
+  <footer id="contact">
+    <h2>Contact Us</h2>
+    <address>
+      📍 123 Food Street, Douala, Cameroon<br>
+      📞 +237 651 908 060<br>
+      ✉️ <a href="mailto:pkelian31@gmail.com">pkelian31@gmail.com</a>
+    </address>
+  </footer>
+</body>
+</html>`}},
+{tag:"EXERCISE 4",en:{t:"HTML — Build an Accessible Image Gallery",b:`<b>🎯 Objective:</b> Build an image gallery with captions, alt text, and keyboard navigation.<br><br>
+<b>📋 Requirements:</b><br>
+• A gallery of at least 4 images in &lt;figure&gt; elements<br>
+• Each image has a &lt;figcaption&gt; with description<br>
+• All images have meaningful alt text<br>
+• Add aria-label on any icon-only buttons<br>
+• Add a "View Full Size" link under each image<br>
+• Use &lt;details&gt; and &lt;summary&gt; to hide/show extra info<br><br>
+<b>💡 Tips:</b><br>
+• figure + figcaption is the semantic way to caption images<br>
+• details creates a native expand/collapse — no JavaScript needed!<br>
+• Test by pressing Tab — can you reach every interactive element?`,
+sim:`<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Image Gallery</title></head>
+<body>
+  <h1>📸 My Photo Gallery</h1>
+  <figure>
+    <img src="sunrise.jpg" alt="Golden sunrise over Mount Cameroon with orange clouds" width="400">
+    <figcaption>Mount Cameroon at Sunrise</figcaption>
+    <a href="sunrise.jpg" target="_blank" rel="noopener">View Full Size</a>
+    <details>
+      <summary>More Info</summary>
+      <p>Taken at 5:30 AM near Buea. The golden light lasts only 15 minutes!</p>
+    </details>
+  </figure>
+  <figure>
+    <img src="market.jpg" alt="Busy Douala market with colorful fabrics and vendors" width="400">
+    <figcaption>Douala Central Market</figcaption>
+    <a href="market.jpg" target="_blank" rel="noopener">View Full Size</a>
+    <details>
+      <summary>More Info</summary>
+      <p>The best place to find traditional Cameroonian fabrics.</p>
+    </details>
+  </figure>
+  <figure>
+    <img src="beach.jpg" alt="White sand beach with palm trees and blue ocean" width="400">
+    <figcaption>Limbe Beach</figcaption>
+    <a href="beach.jpg" target="_blank" rel="noopener">View Full Size</a>
+    <details>
+      <summary>More Info</summary>
+      <p>Limbe is known as the "Beautiful City" — this is why!</p>
+    </details>
+  </figure>
+  <button aria-label="Close gallery">✕</button>
+</body>
+</html>`}},
+{tag:"EXERCISE 5",en:{t:"HTML5 APIs — Interactive Quiz with data-* Attributes",b:`<b>🎯 Objective:</b> Build a quiz using data-* attributes and contenteditable.<br><br>
+<b>📋 Requirements:</b><br>
+• Create 3 quiz questions using &lt;div&gt; elements<br>
+• Each question has data-answer with the correct answer<br>
+• Each question has data-points with point value<br>
+• Add a contenteditable="true" area where users type their answer<br>
+• Add an &lt;output&gt; element to display the score<br>
+• Add a "Check Answer" button<br>
+• Use data-category to label each question (HTML, CSS, JS)<br><br>
+<b>💡 Tips:</b><br>
+• data-* attributes store custom data on elements<br>
+• element.dataset in JavaScript reads these attributes<br>
+• contenteditable turns any element into an editable area`,
+sim:`<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Interactive Quiz</title></head>
+<body>
+  <h1>🧠 Quick Quiz</h1>
+  <div class="question" data-answer="hypertext markup language" data-points="10" data-category="HTML">
+    <p><b>Q1:</b> What does HTML stand for?</p>
+    <div contenteditable="true" style="border:2px solid #ccc;padding:8px;">Type your answer here...</div>
+  </div>
+  <div class="question" data-answer="cascading style sheets" data-points="10" data-category="CSS">
+    <p><b>Q2:</b> What does CSS stand for?</p>
+    <div contenteditable="true" style="border:2px solid #ccc;padding:8px;">Type your answer here...</div>
+  </div>
+  <div class="question" data-answer="javascript" data-points="10" data-category="JS">
+    <p><b>Q3:</b> What language runs in the browser?</p>
+    <div contenteditable="true" style="border:2px solid #ccc;padding:8px;">Type your answer here...</div>
+  </div>
+  <button onclick="checkAnswers()">Check Answers</button>
+  <output id="score"></output>
+  <script>
+    function checkAnswers(){
+      let total = 0;
+      document.querySelectorAll('.question').forEach(q => {
+        const userAnswer = q.querySelector('[contenteditable]').textContent.trim().toLowerCase();
+        const correct = q.dataset.answer;
+        const points = parseInt(q.dataset.points);
+        if(userAnswer === correct) total += points;
+      });
+      document.getElementById('score').textContent = 'Your score: ' + total + '/30';
+    }
+  <\/script>
+</body>
+</html>`}}
+];
+
+const practicalQuiz = shortQuiz([
+ {en:{q:"What tag creates a form in HTML?",o:["&lt;form&gt;","&lt;input&gt;","&lt;fieldset&gt;","&lt;button&gt;"],a:0},
+ fr:{q:"Quel tag crée un formulaire en HTML ?",o:["&lt;form&gt;","&lt;input&gt;","&lt;fieldset&gt;","&lt;button&gt;"],a:0}},
+ {en:{q:"Which attribute connects a label to its input?",o:["href","for/id","link","connect"],a:1},
+ fr:{q:"Quel attribut connecte un label à son input ?",o:["href","for/id","link","connect"],a:1}},
+ {en:{q:"What does data-* attribute allow?",o:["Storing custom data on elements","Deleting data","Formatting text","Creating databases"],a:0},
+ fr:{q:"Que permet l'attribut data-* ?",o:["Stocker des données personnalisées","Supprimer des données","Formater le texte","Créer des bases de données"],a:0}},
+ {en:{q:"What is the purpose of alt text on images?",o:["Decoration","Accessibility — describes image if it fails to load","Speed up loading","Change image color"],a:1},
+ fr:{q:"Quel est le but du texte alt sur les images ?",o:["Décoration","Accessibilité","Accélérer le chargement","Changer la couleur"],a:1}},
+ {en:{q:"Which tag is best for tabular data?",o:["&lt;div&gt;","&lt;table&gt;","&lt;list&gt;","&lt;grid&gt;"],a:1},
+ fr:{q:"Quel tag est le mieux pour les données tabulaires ?",o:["&lt;div&gt;","&lt;table&gt;","&lt;list&gt;","&lt;grid&gt;"],a:1}},
+ {en:{q:"What does contenteditable do?",o:["Makes text bold","Makes any element directly editable by the user","Deletes the element","Changes font color"],a:1},
+ fr:{q:"Que fait contenteditable ?",o:["Met le texte en gras","Rend un élément éditable","Supprime l'élément","Change la couleur"],a:1}},
+ {en:{q:"Which element displays calculation results?",o:["&lt;calc&gt;","&lt;output&gt;","&lt;result&gt;","&lt;data&gt;"],a:1},
+ fr:{q:"Quel élément affiche les résultats de calculs ?",o:["&lt;calc&gt;","&lt;output&gt;","&lt;result&gt;","&lt;data&gt;"],a:1}},
+ {en:{q:"Why use fieldset and legend in forms?",o:["For styling only","To group related inputs and label the group","To add JavaScript","To create tables"],a:1},
+ fr:{q:"Pourquoi utiliser fieldset et legend ?",o:["Pour le style","Pour grouper les inputs liés","Pour JavaScript","Pour créer des tableaux"],a:1}},
+ {en:{q:"How do you read data-* attributes in JS?",o:["element.data","element.dataset","element.getAttribute","element.read"],a:1},
+ fr:{q:"Comment lire les attribut data-* en JS ?",o:["element.data","element.dataset","element.getAttribute","element.read"],a:1}},
+ {en:{q:"What is figcaption used for?",o:["Adding images","Providing a caption for a figure element","Creating forms","Styling tables"],a:1},
+ fr:{q:"À quoi sert figcaption ?",o:["Ajouter des images","Donner une légende à un figure","Créer des formulaires","Styliser les tableaux"],a:1}}
+]);
+
 const COURSES = [
  {id:'html', order:1, icon:'📄', color:'#FF6B6B', price:0, free:true,
   name:{en:'HTML',fr:'HTML'}, teacher:{en:'Ms. Amara',fr:'Mme Amara'}, avatar:'👩🏾‍🏫',
@@ -2114,7 +2373,12 @@ const COURSES = [
   name:{en:'Mobile Dev',fr:'Dev Mobile'}, teacher:{en:'Ms. Aisha',fr:'Mme Aisha'}, avatar:'👩🏽‍💻',
   vibe:{en:'Energetic, product-builder mindset. Aisha wants your app in someone\'s pocket, not just on your laptop.',
         fr:"Énergique, esprit bâtisseuse de produit. Aisha veut ton app dans la poche de quelqu'un, pas juste sur ton ordinateur."},
-  lessons: mobileLessons, quiz: mobileQuiz, full:false, sandboxLang:'other'}
+  lessons: mobileLessons, quiz: mobileQuiz, full:false, sandboxLang:'other'},
+ {id:'practical', order:12, icon:'✏️', color:'#FF9800', price:0, free:true,
+  name:{en:'Practical Exercises & Correction',fr:'Exercices Pratiques & Correction'}, teacher:{en:'All Teachers',fr:'Tous les Enseignants'}, avatar:'📝',
+  vibe:{en:'Hands-on practice with real-world exercises. Every lesson has a detailed exercise with a full correction. Learn by doing!',
+        fr:"Pratique concrète avec des exercices réels. Chaque leçon a un exercice détaillé avec une correction complète. Apprends en faisant !"},
+  lessons: practicalLessons, quiz: practicalQuiz, full:true, sandboxLang:'html'}
 ];
 
 /* ---------- TEACHER PERSONALITY: rotating speech-bubble tips ---------- */
@@ -2441,7 +2705,9 @@ const MASCOT_OPTS = {
   prompt:{skin:'#8a5a34', hair:'#1a0800', hairStyle:'short', outfit:'#3498DB', accent:'#64C8FF', variant:'nova',
     name:{en:'Mr. Nova',fr:'M. Nova'}},
   mobile:{skin:'#a56a3c', hair:'#1a0800', hairStyle:'long', outfit:'#E91E63', accent:'#E91E63', variant:'aisha',
-    name:{en:'Ms. Aisha',fr:'Mme Aisha'}}
+    name:{en:'Ms. Aisha',fr:'Mme Aisha'}},
+  practical:{skin:'#8a5a34', hair:'#1a0800', hairStyle:'short', outfit:'#FF9800', accent:'#FFD700', variant:'default',
+    name:{en:'All Teachers',fr:'Tous les Enseignants'}}
 };
 const FOUNDER_MASCOT = {skin:'#3d1a00', hair:'#1a0800', hairStyle:'short', outfit:'#2ea55c', accent:'#ffd600', variant:'default',
   name:{en:'KЭL',fr:'KЭL'}};
@@ -2467,8 +2733,10 @@ const TIPS = {
           fr:["La permission d'abord. Toujours.","Pense comme l'attaquant, agis comme le défenseur","Ne fais confiance à rien, vérifie tout"]},
  prompt:{en:["Vague in, vague out.","Show it examples, it'll thank you","Structure your ask, structure the answer"],
          fr:["Flou en entrée, flou en sortie.","Montre-lui des exemples, il te remerciera","Structure ta demande, structure la réponse"]},
- mobile:{en:["Thumbs, not mice. Design for thumbs.","Your app lives in someone's pocket now","Offline mode or it doesn't count"],
-         fr:["Des pouces, pas des souris.","Ton app vit dans la poche de quelqu'un maintenant","Le mode hors-ligne ou ça ne compte pas"]}
+  mobile:{en:["Thumbs, not mice. Design for thumbs.","Your app lives in someone's pocket now","Offline mode or it doesn't count"],
+          fr:["Des pouces, pas des souris.","Ton app vit dans la poche de quelqu'un maintenant","Le mode hors-ligne ou ça ne compte pas"]},
+  practical:{en:["Practice makes permanent!","Read the correction even if you got it right","Every exercise is a real interview question"],
+             fr:["La pratique rend permanent !","Même si tu as réussi, lis la correction","Chaque exercice est une vraie question d'entretien"]}
 };
 
 /* ---------- LOCKED-STATE MESSAGES, in each teacher's voice ---------- */
@@ -3826,12 +4094,13 @@ function renderEarlyUsers(){
   wrap.innerHTML = allUsers.slice(0,15).map((u,i)=>{
     const isEarly = i < 10;
     const rewardGiven = u.earlyReward;
+    const safeName = u.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
     return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:8px 12px;border-radius:10px;${isEarly?'background:#fff8e1;border:1px solid #ffd600;':'background:#f7f4ff;'}">
       <span style="font-size:1rem;">${isEarly?'🏅':'👤'}</span>
       <span style="font-weight:800;font-size:.88rem;">${u.name}</span>
       <span style="font-size:.75rem;color:var(--muted);">${u.joined||'—'}</span>
       ${isEarly ? `<span style="font-size:.72rem;padding:2px 8px;border-radius:10px;background:#ffd600;color:#7a5b00;font-weight:800;">EARLY USER #${i+1}</span>` : ''}
-      ${isEarly && !rewardGiven ? `<button class="admin-mini-btn" style="border-color:#e74c3c;color:#e74c3c;" onclick="grantEarlyReward('${u.name}',${i})">🎁 Grant Reward</button>` : ''}
+      ${isEarly && !rewardGiven ? `<button class="admin-mini-btn" style="border-color:#e74c3c;color:#e74c3c;" onclick="grantEarlyReward('${safeName}',${i})">🎁 Grant Reward</button>` : ''}
       ${rewardGiven ? '<span style="font-size:.72rem;color:#1fa971;font-weight:800;">✅ Rewarded</span>' : ''}
     </div>`;
   }).join('');
@@ -3843,24 +4112,18 @@ async function grantEarlyReward(userName, index){
 
   // Auto-unlock first paid course
   const firstPaid = COURSES.find(c=>!c.free);
-  if(firstPaid){
-    const allUsers = loadAllUsers();
-    const user = allUsers.find(u=>u.name===userName);
-    if(user && user.state){
-      user.state.unlocked = user.state.unlocked || {};
-      user.state.unlocked[firstPaid.id] = true;
-      user.earlyReward = true;
-      saveAllUsers(allUsers);
-      // Save to Firebase for the user
-      const userUid = user.uid || userName.replace(/[^a-zA-Z0-9]/g,'_');
-      await fbSet('users', userUid, user.state);
-    }
-  }
-
   const allUsers = loadAllUsers();
   const user = allUsers.find(u=>u.name===userName);
-  if(user) user.earlyReward = true;
-  saveAllUsers(allUsers);
+  if(user){
+    if(!user.state) user.state = {unlocked:{}, pendingPayments:[]};
+    if(!user.state.unlocked) user.state.unlocked = {};
+    if(firstPaid) user.state.unlocked[firstPaid.id] = true;
+    user.earlyReward = true;
+    saveAllUsers(allUsers);
+    // Save to Firebase for the user
+    const userUid = user.uid || userName.replace(/[^a-zA-Z0-9]/g,'_');
+    await fbSet('users', userUid, user.state);
+  }
 
   renderEarlyUsers();
   const msgEl = document.getElementById('earlyRewardMsg2');
