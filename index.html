@@ -378,6 +378,7 @@ table.admin-table{width:100%;border-collapse:collapse;font-size:.8rem;}
 .admin-stat span{font-size:.7rem;color:var(--muted);}
 
 /* NOTIFICATION BELL & PANEL */
+.online-badge{background:#1fa971;color:#fff;border-radius:999px;padding:2px 8px;font-size:.72rem;font-weight:800;display:inline-block;min-width:20px;text-align:center;}
 .notif-bell{position:relative;cursor:pointer;font-size:1.3rem;padding:6px;}
 .notif-dot{position:absolute;top:2px;right:2px;background:#e74c3c;color:#fff;border-radius:50%;width:18px;height:18px;font-size:.65rem;font-weight:800;display:none;align-items:center;justify-content:center;line-height:18px;text-align:center;}
 .notif-panel{position:fixed;top:60px;right:20px;width:320px;max-height:400px;background:#fff;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.2);z-index:2500;overflow:hidden;display:none;}
@@ -666,6 +667,7 @@ table.admin-table{width:100%;border-collapse:collapse;font-size:.8rem;}
   <div class="brand" onclick="showHome()"><div class="blogo">🌱</div>CODE ROOTS SCHOOL</div>
   <div class="topnav-right">
     <span class="hi-user" id="hiUser"></span>
+    <span class="online-badge" id="onlineCount">0</span> <span style="font-size:.75rem;color:rgba(255,255,255,.8);">online</span>
     <div class="notif-bell" id="notifBell" onclick="toggleNotifPanel()">🔔<span class="notif-dot" id="notifDot">0</span></div>
     <div class="lang-toggle">
       <button id="navLangEn" class="active" onclick="setLang('en')">EN</button>
@@ -872,10 +874,22 @@ table.admin-table{width:100%;border-collapse:collapse;font-size:.8rem;}
       <h3>👥 Students seen on this device</h3>
       <div class="admin-table-wrap" style="overflow-x:auto;">
         <table class="admin-table">
-          <thead><tr><th>Name</th><th>Joined</th><th>Courses unlocked</th></tr></thead>
+          <thead><tr><th>Name</th><th>Email</th><th>Joined</th><th>Courses unlocked</th><th>Action</th></tr></thead>
           <tbody id="adminStudentsBody"></tbody>
         </table>
       </div>
+    </div>
+
+    <div class="admin-section">
+      <h3>➕ Add / Remove Users</h3>
+      <p style="color:var(--muted);font-size:.82rem;margin-bottom:12px;">Manually add a student or remove an existing one.</p>
+      <div class="admin-grid">
+        <div class="admin-field"><label>New student name</label><input id="addUserName" placeholder="Full name"></div>
+        <div class="admin-field"><label>New student email</label><input id="addUserEmail" type="email" placeholder="email@example.com"></div>
+        <div class="admin-field"><label>Temporary password</label><input id="addUserPass" type="password" placeholder="Min 6 characters"></div>
+      </div>
+      <button class="admin-save-btn" style="background:#1fa971;margin-top:8px;" onclick="adminAddUser()">➕ Add User</button>
+      <div id="addUserMsg" style="display:none;margin-top:8px;padding:8px 12px;border-radius:8px;font-size:.82rem;font-weight:800;"></div>
     </div>
 
     <div class="admin-section">
@@ -1179,7 +1193,7 @@ sim:`<div class="product" data-id="42" data-price="5000">
   Sneakers
 </div>
 
-<script>
+\x3Cscript>
   const el = document.querySelector('.product');
   console.log(el.dataset.id);    // "42"
   console.log(el.dataset.price); // "5000"
@@ -2277,20 +2291,8 @@ sim:`<!DOCTYPE html>
     <p><b>Q3:</b> What language runs in the browser?</p>
     <div contenteditable="true" style="border:2px solid #ccc;padding:8px;">Type your answer here...</div>
   </div>
-  <button onclick="checkAnswers()">Check Answers</button>
-  <output id="score"></output>
-  <script>
-    function checkAnswers(){
-      let total = 0;
-      document.querySelectorAll('.question').forEach(q => {
-        const userAnswer = q.querySelector('[contenteditable]').textContent.trim().toLowerCase();
-        const correct = q.dataset.answer;
-        const points = parseInt(q.dataset.points);
-        if(userAnswer === correct) total += points;
-      });
-      document.getElementById('score').textContent = 'Your score: ' + total + '/30';
-    }
-  <\/script>
+  <button>Check Answers</button>
+  <output id="score">0/30</output>
 </body>
 </html>`}}
 ];
@@ -3059,7 +3061,8 @@ function pct(courseId){
 }
 
 function isFullyUnlocked(c){
-  const purchased = c.free || STATE.unlocked[c.id];
+  const isFree = c.free || c.price === 0;
+  const purchased = isFree || STATE.unlocked[c.id];
   const prevCourse = COURSES.find(x=>x.order === c.order-1);
   const prevPassed = !prevCourse || (STATE.quizScores[prevCourse.id]?.passed);
   return purchased && prevPassed;
@@ -3069,6 +3072,7 @@ function renderCourseGrid(){
   const grid = document.getElementById('courseGrid');
   grid.innerHTML = '';
   COURSES.sort((a,b)=>a.order-b.order).forEach(c=>{
+    const isFree = c.free || c.price === 0;
     const unlocked = isFullyUnlocked(c);
     const p = pct(c.id);
     const div = document.createElement('div');
@@ -3076,7 +3080,7 @@ function renderCourseGrid(){
     div.style.setProperty('--c', c.color);
     div.onclick = ()=> openCourse(c.id);
     div.innerHTML = `
-      ${c.free?`<div class="cfree">${T[LANG].free}</div>`:(unlocked?'':`<div class="clock">${T[LANG].locked}</div>`)}
+      ${isFree?`<div class="cfree">${T[LANG].free}</div>`:(unlocked?'':`<div class="clock">${T[LANG].locked}</div>`)}
       <div class="cicon">${c.icon}</div>
       <h3>${c.name[LANG]}</h3>
       <div class="cteacher"><span class="cteacher-av">${c.avatar}</span>${c.teacher[LANG]}</div>
@@ -3325,6 +3329,25 @@ function renderQuizResult(id){
   }
   const confettiHtml = passed ? `<div class="confetti-wrap">${['🎉','✨','🎊','⭐','🔥'].map((e,i)=>
     `<span style="left:${10+i*18}%;animation-delay:${i*0.08}s;">${e}</span>`).join('')}</div>` : '';
+
+  // Build detailed results
+  let resultsHtml = '';
+  c.quiz.forEach((q, i) => {
+    const userAnswer = qs.answers[i];
+    const isCorrect = userAnswer === q.a;
+    const qText = q[LANG]?.q || q.en?.q;
+    const options = q[LANG]?.o || q.en?.o;
+    const correctAnswer = options[q.a];
+    resultsHtml += `<div style="padding:10px 14px;margin-bottom:8px;border-radius:10px;border-left:4px solid ${isCorrect?'#1fa971':'#e74c3c'};background:${isCorrect?'#f0faf5':'#fef5f5'};">
+      <div style="font-weight:800;font-size:.85rem;margin-bottom:4px;">${i+1}. ${qText}</div>
+      <div style="font-size:.82rem;color:${isCorrect?'#1fa971':'#e74c3c'};">
+        ${isCorrect?'✅':'❌'} Your answer: ${options[userAnswer]}
+        ${!isCorrect ? `<br>✅ Correct answer: <b>${correctAnswer}</b>` : ''}
+      </div>
+      ${q.explanation ? `<div style="font-size:.78rem;color:#555;margin-top:4px;font-style:italic;">💡 ${q.explanation[LANG]||q.explanation.en||''}</div>` : ''}
+    </div>`;
+  });
+
   area.innerHTML = `<div class="quiz-result ${passed?'pass':'fail'}">
     ${confettiHtml}
     <div class="rscore">${qs.score}/${c.quiz.length}</div>
@@ -3332,6 +3355,10 @@ function renderQuizResult(id){
     ${passed ? `<div class="code-reveal-box">${T[LANG].yourCode}<br>${code}</div>
     <p style="font-size:.8rem;color:var(--muted);margin-top:10px;">${LANG==='en'?'Next course unlocked on the home screen! 🔓':"Cours suivant débloqué sur l'accueil ! 🔓"}</p>` : ''}
     <button class="quiz-submit-btn" style="background:${c.color}" onclick="retakeQuiz('${id}')">${T[LANG].tryAgain}</button>
+  </div>
+  <div style="margin-top:20px;">
+    <h3 style="margin-bottom:12px;">📋 ${LANG==='en'?'Detailed Results':'Résultats détaillés'}</h3>
+    ${resultsHtml}
   </div>`;
 }
 
@@ -3685,14 +3712,88 @@ function renderAdminPending(){
 
 function renderAdminStudents(){
   const body = document.getElementById('adminStudentsBody');
-  if(!STATE.user){ body.innerHTML = `<tr><td colspan="3"><div class="admin-empty">No students yet</div></td></tr>`; return; }
-  const unlockedList = Object.keys(STATE.unlocked||{}).filter(k=>STATE.unlocked[k]).join(', ') || 'html (free)';
-  const pendingList = (STATE.pendingPayments||[]).filter(p=>p.status==='pending').map(p=>p.courseName).join(', ') || '—';
-  body.innerHTML = `<tr>
-    <td><b>${STATE.user}</b></td>
-    <td>${STATE.joined||'—'}</td>
-    <td>${unlockedList}<br><span style="font-size:.72rem;color:#e67e22;">⏳ Pending: ${pendingList}</span></td>
-  </tr>`;
+  const allUsers = loadAllUsers();
+  if(allUsers.length === 0){
+    body.innerHTML = `<tr><td colspan="5"><div class="admin-empty">No students yet</div></td></tr>`;
+    return;
+  }
+  body.innerHTML = allUsers.map(u => {
+    const unlockedList = u.state ? Object.keys(u.state.unlocked||{}).filter(k=>u.state.unlocked[k]).join(', ') || 'html (free)' : '—';
+    return `<tr>
+      <td><b>${u.name}</b></td>
+      <td>${u.email||'—'}</td>
+      <td>${u.joined||'—'}</td>
+      <td>${unlockedList}</td>
+      <td><button class="admin-mini-btn danger" onclick="adminRemoveUser('${u.name.replace(/'/g,"\\'")}')">🗑️ Remove</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function adminAddUser(){
+  const name = document.getElementById('addUserName').value.trim();
+  const email = document.getElementById('addUserEmail').value.trim();
+  const pass = document.getElementById('addUserPass').value;
+  const msgEl = document.getElementById('addUserMsg');
+
+  if(!name || !email || !pass){
+    msgEl.style.display='block'; msgEl.style.background='#fdeaea'; msgEl.style.color='#c0392b';
+    msgEl.textContent='❌ Fill in all fields.'; return;
+  }
+  if(pass.length < 6){
+    msgEl.style.display='block'; msgEl.style.background='#fdeaea'; msgEl.style.color='#c0392b';
+    msgEl.textContent='❌ Password must be at least 6 characters.'; return;
+  }
+
+  const allUsers = loadAllUsers();
+  if(allUsers.find(u=>u.email===email)){
+    msgEl.style.display='block'; msgEl.style.background='#fdeaea'; msgEl.style.color='#c0392b';
+    msgEl.textContent='❌ This email is already registered.'; return;
+  }
+
+  // Create in Firebase Auth (admin context)
+  auth.createUserWithEmailAndPassword(email, pass)
+    .then(async cred => {
+      await cred.user.updateProfile({displayName: name});
+      const newUser = {name, email, joined:new Date().toLocaleDateString(), earlyReward:false,
+        state:{user:name, userEmail:email, uid:cred.user.uid, unlocked:{html:true}, progress:{}, quizScores:{}, pendingPayments:[], discounts:{}}};
+      allUsers.push(newUser);
+      saveAllUsers(allUsers);
+      await fbSet('users', cred.user.uid, newUser.state);
+      msgEl.style.display='block'; msgEl.style.background='#e6fbf1'; msgEl.style.color='#1fa971';
+      msgEl.textContent=`✅ User ${name} added successfully!`;
+      document.getElementById('addUserName').value='';
+      document.getElementById('addUserEmail').value='';
+      document.getElementById('addUserPass').value='';
+      renderAdminStudents();
+      renderGiftRecipients();
+    })
+    .catch(err => {
+      msgEl.style.display='block'; msgEl.style.background='#fdeaea'; msgEl.style.color='#c0392b';
+      if(err.code==='auth/email-already-in-use') msgEl.textContent='❌ This email is already registered.';
+      else msgEl.textContent='❌ ' + err.message;
+    });
+  setTimeout(()=>{ msgEl.style.display='none'; }, 4000);
+}
+
+async function adminRemoveUser(userName){
+  if(!confirm(`Remove user "${userName}"? This cannot be undone.`)) return;
+  const allUsers = loadAllUsers();
+  const idx = allUsers.findIndex(u=>u.name===userName);
+  if(idx === -1) return;
+  const user = allUsers[idx];
+  // Remove from Firebase
+  const userUid = user.uid || userName.replace(/[^a-zA-Z0-9]/g,'_');
+  await fbDelete('users', userUid);
+  await fbDelete('notifs', userUid);
+  await fbDelete('presence', userUid);
+  allUsers.splice(idx, 1);
+  saveAllUsers(allUsers);
+  renderAdminStudents();
+  renderGiftRecipients();
+  const msgEl = document.getElementById('addUserMsg');
+  msgEl.style.display='block'; msgEl.style.background='#e6fbf1'; msgEl.style.color='#1fa971';
+  msgEl.textContent=`✅ User ${userName} removed.`;
+  setTimeout(()=>{ msgEl.style.display='none'; }, 3000);
 }
 
 function updateAdminBadge(){
@@ -4107,27 +4208,27 @@ function renderEarlyUsers(){
 }
 
 async function grantEarlyReward(userName, index){
-  const earlyReward = localStorage.getItem('crEarlyRewardMsg') || '🎉 You are one of the first 10 users! Enjoy a FREE course unlock!';
+  const earlyReward = '🎉 You are one of the first 10 users! Enjoy a 50% DISCOUNT on your first paid course!';
   addNotif('🏅 Early User Reward!', `${earlyReward} — Granted to ${userName}`);
 
-  // Auto-unlock first paid course
+  // Give 50% discount on first paid course
   const firstPaid = COURSES.find(c=>!c.free);
   const allUsers = loadAllUsers();
   const user = allUsers.find(u=>u.name===userName);
   if(user){
-    if(!user.state) user.state = {unlocked:{}, pendingPayments:[]};
+    if(!user.state) user.state = {unlocked:{html:true}, pendingPayments:[], discounts:{}};
     if(!user.state.unlocked) user.state.unlocked = {};
-    if(firstPaid) user.state.unlocked[firstPaid.id] = true;
+    if(!user.state.discounts) user.state.discounts = {};
+    if(firstPaid) user.state.discounts[firstPaid.id] = 50; // 50% off
     user.earlyReward = true;
     saveAllUsers(allUsers);
-    // Save to Firebase for the user
     const userUid = user.uid || userName.replace(/[^a-zA-Z0-9]/g,'_');
     await fbSet('users', userUid, user.state);
   }
 
   renderEarlyUsers();
   const msgEl = document.getElementById('earlyRewardMsg2');
-  msgEl.style.display='block'; msgEl.textContent=`✅ Early user reward granted to ${userName}!`;
+  msgEl.style.display='block'; msgEl.textContent=`✅ Early user reward (50% discount) granted to ${userName}!`;
   setTimeout(()=>{ msgEl.style.display='none'; }, 3000);
 }
 
@@ -4614,7 +4715,66 @@ async function loadFirebaseData(){
   }catch(e){ console.error('Firebase load error:', e); }
 }
 
-window.addEventListener('load', async ()=>{
+/* ============================================================
+   PRESENCE SYSTEM — Track who is online
+   ============================================================ */
+let presenceInterval = null;
+
+function setOnline(){
+  if(!STATE.user) return;
+  const uid = STATE.uid || STATE.user.replace(/[^a-zA-Z0-9]/g,'_');
+  db.collection('presence').doc(uid).set({
+    name: STATE.user,
+    email: STATE.userEmail || '',
+    online: true,
+    lastSeen: Date.now()
+  }, {merge:true});
+}
+
+function setOffline(){
+  if(!STATE.user) return;
+  const uid = STATE.uid || STATE.user.replace(/[^a-zA-Z0-9]/g,'_');
+  db.collection('presence').doc(uid).set({
+    online: false,
+    lastSeen: Date.now()
+  }, {merge:true});
+}
+
+function startHeartbeat(){
+  setOnline();
+  presenceInterval = setInterval(setOnline, 30000); // every 30s
+  window.addEventListener('beforeunload', setOffline);
+}
+
+async function getOnlineUsers(){
+  const snap = await db.collection('presence')
+    .where('online','==',true)
+    .where('lastSeen','>', Date.now() - 60000) // active in last 60s
+    .get();
+  const users = [];
+  snap.forEach(d => users.push({id:d.id, ...d.data()}));
+  return users;
+}
+
+function listenOnlineUsers(callback){
+  return db.collection('presence')
+    .onSnapshot(snap => {
+      const now = Date.now();
+      const users = [];
+      snap.forEach(d => {
+        const data = d.data();
+        if(data.online && (now - data.lastSeen) < 60000){
+          users.push({id:d.id, ...data});
+        }
+      });
+      callback(users);
+    });
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+(async () => {
   setLang(LANG);
   renderNotifDot();
   initParticles();
@@ -4636,10 +4796,16 @@ window.addEventListener('load', async ()=>{
   if(STATE.user){
     document.getElementById('gateScreen').classList.add('hidden');
     document.getElementById('topnav').classList.remove('hidden');
+    startHeartbeat();
     showHome();
     renderAll();
+    // Real-time online counter
+    listenOnlineUsers(users => {
+      const el = document.getElementById('onlineCount');
+      if(el) el.textContent = users.length;
+    });
   }
-});
+})();
 </script>
 </body>
 </html>
