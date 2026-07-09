@@ -894,13 +894,24 @@ table.admin-table{width:100%;border-collapse:collapse;font-size:.8rem;}
 
     <div class="admin-section">
       <h3>📱 Payment Phone Numbers</h3>
-      <p style="color:var(--muted);font-size:.82rem;margin-bottom:12px;">Manage phone numbers shown to students for Mobile Money payments.</p>
-      <div id="adminPhoneList"></div>
-      <div style="display:flex;gap:8px;margin-top:10px;">
-        <input id="newPhoneInput" placeholder="e.g. +237 651 908 060" style="flex:1;border:2px solid #e6ddff;border-radius:8px;padding:8px 10px;font-size:.85rem;background:#f7f4ff;">
-        <input id="newPhoneName" placeholder="Label (e.g. Main, Backup)" style="width:140px;border:2px solid #e6ddff;border-radius:8px;padding:8px 10px;font-size:.85rem;background:#f7f4ff;">
-        <button class="admin-save-btn" onclick="addPhoneNumber()">➕ Add</button>
+      <p style="color:var(--muted);font-size:.82rem;margin-bottom:12px;">Set the Mobile Money numbers students see when paying.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;background:#fff9e6;border:2px solid #ffcc00;border-radius:10px;padding:14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <div style="background:#ffcc00;color:#000;font-weight:800;font-size:.75rem;padding:3px 10px;border-radius:6px;">MTN</div>
+            <span style="font-weight:800;font-size:.88rem;">MTN Mobile Money</span>
+          </div>
+          <input id="adminMtnPhone" placeholder="+237 6XX XXX XXX" style="width:100%;border:2px solid #ffcc00;border-radius:8px;padding:10px 12px;font-size:.9rem;background:#fff;">
+        </div>
+        <div style="flex:1;min-width:200px;background:#fff3e6;border:2px solid #ff6600;border-radius:10px;padding:14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <div style="background:#ff6600;color:#fff;font-weight:800;font-size:.75rem;padding:3px 10px;border-radius:6px;">OM</div>
+            <span style="font-weight:800;font-size:.88rem;">Orange Money</span>
+          </div>
+          <input id="adminOrangePhone" placeholder="+237 6XX XXX XXX" style="width:100%;border:2px solid #ff6600;border-radius:8px;padding:10px 12px;font-size:.9rem;background:#fff;">
+        </div>
       </div>
+      <button class="admin-save-btn" style="background:#1fa971;margin-top:10px;" onclick="savePaymentPhones()">💾 Save Numbers</button>
       <div id="phoneSaveMsg" style="display:none;margin-top:8px;padding:8px 12px;background:#e6fbf1;color:#1fa971;border-radius:8px;font-size:.82rem;font-weight:800;"></div>
     </div>
 
@@ -2084,241 +2095,399 @@ const mobileQuiz = shortQuiz([
    PRACTICAL EXERCISES & CORRECTIONS COURSE
    ============================================================ */
 const practicalLessons = [
-{tag:"EXERCISE 1",en:{t:"HTML — Build a Complete Registration Form",b:`<b>🎯 Objective:</b> Build a fully accessible registration form for a school website.<br><br>
-<b>📋 Requirements:</b><br>
-• A form with: Full Name, Email, Password, Confirm Password, Phone Number<br>
-• Each input must have a &lt;label&gt; connected via for/id<br>
-• Use proper input types: text, email, password, tel<br>
-• Add required attribute on all fields<br>
-• Add a "Register" submit button<br>
-• Wrap everything in a semantic &lt;form&gt; tag<br>
-• Add a heading &lt;h2&gt; saying "Create Your Account"<br><br>
-<b>💡 Tips:</b><br>
-• Think about what method the form should use (POST for passwords!)<br>
-• Group related fields using &lt;fieldset&gt; and &lt;legend&gt;<br>
-• Add placeholder text for better UX`,
-sim:`<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><title>Registration Form</title></head>
-<body>
-  <h2>Create Your Account</h2>
-  <form action="/register" method="POST">
-    <fieldset>
-      <legend>Personal Information</legend>
-      <label for="fullname">Full Name:</label><br>
-      <input type="text" id="fullname" name="fullname" required placeholder="e.g. Junior Kamga"><br><br>
-      <label for="email">Email:</label><br>
-      <input type="email" id="email" name="email" required placeholder="e.g. junior@gmail.com"><br><br>
-      <label for="phone">Phone Number:</label><br>
-      <input type="tel" id="phone" name="phone" required placeholder="e.g. +237 651 908 060"><br><br>
-    </fieldset>
-    <fieldset>
-      <legend>Security</legend>
-      <label for="password">Password:</label><br>
-      <input type="password" id="password" name="password" required minlength="8"><br><br>
-      <label for="confirm">Confirm Password:</label><br>
-      <input type="password" id="confirm" name="confirm" required minlength="8"><br><br>
-    </fieldset>
-    <button type="submit">Register</button>
-  </form>
-</body>
-</html>`}},
-{tag:"EXERCISE 2",en:{t:"HTML — Build a Product Card Component",b:`<b>🎯 Objective:</b> Build a product card that displays an image, title, price, rating, and a "Buy Now" button.<br><br>
-<b>📋 Requirements:</b><br>
-• Use &lt;article&gt; for the card container<br>
-• An &lt;img&gt; with meaningful alt text<br>
-• A title using &lt;h3&gt;<br>
-• Price displayed prominently<br>
-• Star rating (use ★ and ☆ characters)<br>
-• A "Buy Now" &lt;button&gt;<br>
-• Add data-price attribute on the card with the price value<br><br>
-<b>💡 Tips:</b><br>
-• Think about the hierarchy: image → title → price → rating → button<br>
-• Use &lt;span&gt; for price and rating to style them later<br>
-• The data-* attribute will be useful in JavaScript`,
-sim:`<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><title>Product Card</title></head>
-<body>
-  <article class="product-card" data-price="15000">
-    <img src="sneakers.jpg" alt="Blue Nike sneakers on white background" width="300">
-    <h3>Nike Air Max 2026</h3>
-    <p class="price">15,000 FCFA</p>
-    <p class="rating">★★★★☆ (4/5)</p>
-    <button>Buy Now</button>
-  </article>
-</body>
-</html>`}},
-{tag:"EXERCISE 3",en:{t:"Full Page — Build a Restaurant Menu Page",b:`<b>🎯 Objective:</b> Build a complete restaurant menu page with header, sections, and a contact footer.<br><br>
-<b>📋 Requirements:</b><br>
-• &lt;header&gt; with restaurant name and navigation (Menu, About, Contact)<br>
-• &lt;main&gt; with 3 sections: Starters, Main Courses, Desserts<br>
-• Each section has an &lt;h2&gt; title and at least 3 menu items<br>
-• Each menu item: name (&lt;h3&gt;), description (&lt;p&gt;), price (&lt;span&gt;)<br>
-• Use &lt;table&gt; for one section to show data in tabular format<br>
-• &lt;footer&gt; with address, phone, and email<br>
-• Add at least 2 images with proper alt text<br><br>
-<b>💡 Tips:</b><br>
-• Use semantic tags: header, nav, main, section, footer<br>
-• The table is for comparing prices side by side`,
-sim:`<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><title>Chef Kelian's Restaurant</title></head>
-<body>
-  <header>
-    <h1>🍽️ Chef Kelian's Restaurant</h1>
-    <nav>
-      <a href="#starters">Starters</a> |
-      <a href="#mains">Main Courses</a> |
-      <a href="#desserts">Desserts</a> |
-      <a href="#contact">Contact</a>
-    </nav>
-  </header>
-  <main>
-    <section id="starters">
-      <h2>🥗 Starters</h2>
-      <article>
-        <h3>Grilled Chicken Wings</h3>
-        <p>Spicy marinated wings grilled to perfection, served with garlic sauce.</p>
-        <span>2,500 FCFA</span>
-      </article>
-      <article>
-        <h3>Fresh Garden Salad</h3>
-        <p>Mixed greens, tomatoes, cucumbers, and our house vinaigrette.</p>
-        <span>1,500 FCFA</span>
-      </article>
-    </section>
-    <section id="mains">
-      <h2>🍖 Main Courses</h2>
-      <table>
-        <thead><tr><th>Dish</th><th>Description</th><th>Price</th></tr></thead>
-        <tbody>
-          <tr><td>Grilled Tilapia</td><td>Fresh tilapia with plantains and spicy sauce</td><td>5,000 FCFA</td></tr>
-          <tr><td>Beef Ndolé</td><td>Traditional Cameroonian ndolé with beef and rice</td><td>4,000 FCFA</td></tr>
-        </tbody>
-      </table>
-    </section>
-    <section id="desserts">
-      <h2>🍰 Desserts</h2>
-      <img src="cake.jpg" alt="Chocolate cake with berries on top" width="200">
-      <p>Chocolate Lava Cake — 2,000 FCFA</p>
-    </section>
-  </main>
-  <footer id="contact">
-    <h2>Contact Us</h2>
-    <address>
-      📍 123 Food Street, Douala, Cameroon<br>
-      📞 +237 651 908 060<br>
-      ✉️ <a href="mailto:pkelian31@gmail.com">pkelian31@gmail.com</a>
-    </address>
-  </footer>
-</body>
-</html>`}},
-{tag:"EXERCISE 4",en:{t:"HTML — Build an Accessible Image Gallery",b:`<b>🎯 Objective:</b> Build an image gallery with captions, alt text, and keyboard navigation.<br><br>
-<b>📋 Requirements:</b><br>
-• A gallery of at least 4 images in &lt;figure&gt; elements<br>
-• Each image has a &lt;figcaption&gt; with description<br>
-• All images have meaningful alt text<br>
-• Add aria-label on any icon-only buttons<br>
-• Add a "View Full Size" link under each image<br>
-• Use &lt;details&gt; and &lt;summary&gt; to hide/show extra info<br><br>
-<b>💡 Tips:</b><br>
-• figure + figcaption is the semantic way to caption images<br>
-• details creates a native expand/collapse — no JavaScript needed!<br>
-• Test by pressing Tab — can you reach every interactive element?`,
-sim:`<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><title>Image Gallery</title></head>
-<body>
-  <h1>📸 My Photo Gallery</h1>
-  <figure>
-    <img src="sunrise.jpg" alt="Golden sunrise over Mount Cameroon with orange clouds" width="400">
-    <figcaption>Mount Cameroon at Sunrise</figcaption>
-    <a href="sunrise.jpg" target="_blank" rel="noopener">View Full Size</a>
-    <details>
-      <summary>More Info</summary>
-      <p>Taken at 5:30 AM near Buea. The golden light lasts only 15 minutes!</p>
-    </details>
-  </figure>
-  <figure>
-    <img src="market.jpg" alt="Busy Douala market with colorful fabrics and vendors" width="400">
-    <figcaption>Douala Central Market</figcaption>
-    <a href="market.jpg" target="_blank" rel="noopener">View Full Size</a>
-    <details>
-      <summary>More Info</summary>
-      <p>The best place to find traditional Cameroonian fabrics.</p>
-    </details>
-  </figure>
-  <figure>
-    <img src="beach.jpg" alt="White sand beach with palm trees and blue ocean" width="400">
-    <figcaption>Limbe Beach</figcaption>
-    <a href="beach.jpg" target="_blank" rel="noopener">View Full Size</a>
-    <details>
-      <summary>More Info</summary>
-      <p>Limbe is known as the "Beautiful City" — this is why!</p>
-    </details>
-  </figure>
-  <button aria-label="Close gallery">✕</button>
-</body>
-</html>`}},
-{tag:"EXERCISE 5",en:{t:"HTML5 APIs — Interactive Quiz with data-* Attributes",b:`<b>🎯 Objective:</b> Build a quiz using data-* attributes and contenteditable.<br><br>
-<b>📋 Requirements:</b><br>
-• Create 3 quiz questions using &lt;div&gt; elements<br>
-• Each question has data-answer with the correct answer<br>
-• Each question has data-points with point value<br>
-• Add a contenteditable="true" area where users type their answer<br>
-• Add an &lt;output&gt; element to display the score<br>
-• Add a "Check Answer" button<br>
-• Use data-category to label each question (HTML, CSS, JS)<br><br>
-<b>💡 Tips:</b><br>
-• data-* attributes store custom data on elements<br>
-• element.dataset in JavaScript reads these attributes<br>
-• contenteditable turns any element into an editable area`,
-sim:`<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><title>Interactive Quiz</title></head>
-<body>
-  <h1>🧠 Quick Quiz</h1>
-  <div class="question" data-answer="hypertext markup language" data-points="10" data-category="HTML">
-    <p><b>Q1:</b> What does HTML stand for?</p>
-    <div contenteditable="true" style="border:2px solid #ccc;padding:8px;">Type your answer here...</div>
+{tag:"HTML + CSS",requires:['html','css'],en:{t:"Build a Styled Registration Form",b:`<b>🎯 Combine HTML structure + CSS styling</b><br><br>
+Build a beautiful, styled registration form. Use HTML for structure (labels, inputs, fieldsets) and CSS for visual design (colors, spacing, borders, hover effects).<br><br>
+<b>Requirements:</b><br>
+• Semantic HTML form with labels, fieldsets, required fields<br>
+• CSS styling: background colors, border-radius, padding, hover effects on button<br>
+• A styled submit button that changes color on hover<br>
+• Responsive layout that looks good on mobile`,
+sim:`<style>
+  body{font-family:sans-serif;background:#f0f0f5;display:flex;justify-content:center;padding:40px;}
+  form{background:#fff;padding:30px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);width:100%;max-width:400px;}
+  fieldset{border:2px solid #e6ddff;border-radius:10px;padding:16px;margin-bottom:16px;}
+  legend{font-weight:800;color:#7c3aed;}
+  label{display:block;font-size:.85rem;font-weight:600;margin-bottom:4px;color:#333;}
+  input{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-size:.9rem;margin-bottom:12px;box-sizing:border-box;}
+  input:focus{border-color:#7c3aed;outline:none;}
+  button{width:100%;padding:12px;background:#7c3aed;color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:800;cursor:pointer;}
+  button:hover{background:#5b21b6;transform:translateY(-2px);}
+</style>
+<form>
+  <fieldset>
+    <legend>👤 Personal Info</legend>
+    <label for="name">Full Name</label>
+    <input type="text" id="name" required placeholder="e.g. Junior Kamga">
+    <label for="email">Email</label>
+    <input type="email" id="email" required placeholder="e.g. junior@gmail.com">
+  </fieldset>
+  <fieldset>
+    <legend>🔒 Security</legend>
+    <label for="pass">Password</label>
+    <input type="password" id="pass" required minlength="8">
+    <label for="confirm">Confirm Password</label>
+    <input type="password" id="confirm" required minlength="8">
+  </fieldset>
+  <button type="submit">Create Account</button>
+</form>`},
+fr:{t:"Construire un Formulaire d'Inscription Style",b:`<b>🎯 Combiner structure HTML + style CSS</b><br><br>
+Construisez un beau formulaire d'inscription stylé. Utilisez HTML pour la structure et CSS pour le design visuel.<br><br>
+<b>Exigences :</b><br>
+• Formulaire HTML sémantique avec labels, fieldsets, champs requis<br>
+• Style CSS : couleurs, border-radius, padding, effets hover<br>
+• Bouton submit stylé qui change de couleur au survol<br>
+• Mise en page responsive`,sim:`<style>
+  body{font-family:sans-serif;background:#f0f0f5;display:flex;justify-content:center;padding:40px;}
+  form{background:#fff;padding:30px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);width:100%;max-width:400px;}
+  fieldset{border:2px solid #e6ddff;border-radius:10px;padding:16px;margin-bottom:16px;}
+  legend{font-weight:800;color:#7c3aed;}
+  label{display:block;font-size:.85rem;font-weight:600;margin-bottom:4px;color:#333;}
+  input{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-size:.9rem;margin-bottom:12px;box-sizing:border-box;}
+  input:focus{border-color:#7c3aed;outline:none;}
+  button{width:100%;padding:12px;background:#7c3aed;color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:800;cursor:pointer;}
+  button:hover{background:#5b21b6;transform:translateY(-2px);}
+</style>
+<form>
+  <fieldset><legend>👤 Info Personnelles</legend>
+    <label>Nom Complet</label><input type="text" required placeholder="ex: Junior Kamga">
+    <label>Email</label><input type="email" required placeholder="ex: junior@gmail.com">
+  </fieldset>
+  <fieldset><legend>🔒 Sécurité</legend>
+    <label>Mot de passe</label><input type="password" required minlength="8">
+    <label>Confirmer</label><input type="password" required minlength="8">
+  </fieldset>
+  <button type="submit">Créer Mon Compte</button>
+</form>`}},
+{tag:"HTML + JS",requires:['html','js'],en:{t:"Build a Dynamic Todo List",b:`<b>🎯 Combine HTML structure + JavaScript interactivity</b><br><br>
+Build a todo list app. HTML provides the form and list structure. JavaScript handles adding items, marking complete, and deleting.<br><br>
+<b>Requirements:</b><br>
+• HTML form with input + add button<br>
+• JS: Add new items to the list on click<br>
+• JS: Click item to mark as done (strikethrough)<br>
+• JS: Delete button on each item<br>
+• Use DOM manipulation (createElement, appendChild, etc.)`,
+sim:`<style>
+  body{font-family:sans-serif;max-width:400px;margin:40px auto;padding:0 20px;}
+  h1{color:#7c3aed;}
+  .input-row{display:flex;gap:8px;margin-bottom:16px;}
+  input{flex:1;padding:10px;border:2px solid #ddd;border-radius:8px;font-size:.9rem;}
+  button.add{padding:10px 20px;background:#7c3aed;color:#fff;border:none;border-radius:8px;font-weight:800;cursor:pointer;}
+  ul{list-style:none;padding:0;}
+  li{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f7f4ff;border-radius:10px;margin-bottom:8px;}
+  li.done span{text-decoration:line-through;color:#999;}
+  li span{flex:1;font-size:.95rem;}
+  .del{background:#e74c3c;color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.8rem;}
+</style>
+<h1>📝 My Todos</h1>
+<div class="input-row">
+  <input type="text" id="todoInput" placeholder="What needs to be done?">
+  <button class="add" onclick="addTodo()">Add</button>
+</div>
+<ul id="todoList"></ul>
+\x3Cscript>
+function addTodo(){
+  const input=document.getElementById('todoInput');
+  if(!input.value.trim())return;
+  const li=document.createElement('li');
+  li.innerHTML='<span onclick="this.parentElement.classList.toggle(\\'done\\')">'+input.value+'</span><button class="del" onclick="this.parentElement.remove()">✕</button>';
+  document.getElementById('todoList').appendChild(li);
+  input.value='';
+}
+\x3C/script>`},
+fr:{t:"Construire une Liste de Tâches Dynamique",b:`<b>🎯 Combiner structure HTML + interactivité JavaScript</b><br><br>
+Construisez une app de liste de tâches. HTML pour la structure, JS pour ajouter, cocher et supprimer.<br><br>
+<b>Exigences :</b><br>
+• Formulaire HTML avec input + bouton ajouter<br>
+• JS : Ajouter des éléments à la liste au clic<br>
+• JS : Cliquer pour marquer terminé (barré)<br>
+• JS : Bouton supprimer sur chaque élément<br>
+• Utiliser la manipulation DOM`,sim:`<style>
+  body{font-family:sans-serif;max-width:400px;margin:40px auto;padding:0 20px;}
+  h1{color:#7c3aed;}
+  .input-row{display:flex;gap:8px;margin-bottom:16px;}
+  input{flex:1;padding:10px;border:2px solid #ddd;border-radius:8px;font-size:.9rem;}
+  button.add{padding:10px 20px;background:#7c3aed;color:#fff;border:none;border-radius:8px;font-weight:800;cursor:pointer;}
+  ul{list-style:none;padding:0;}
+  li{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f7f4ff;border-radius:10px;margin-bottom:8px;}
+  li.done span{text-decoration:line-through;color:#999;}
+  li span{flex:1;font-size:.95rem;}
+  .del{background:#e74c3c;color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.8rem;}
+</style>
+<h1>📝 Mes Tâches</h1>
+<div class="input-row">
+  <input type="text" id="todoInput" placeholder="Qu'est-ce qu'il y a à faire ?">
+  <button class="add" onclick="addTodo()">Ajouter</button>
+</div>
+<ul id="todoList"></ul>
+\x3Cscript>
+function addTodo(){
+  const input=document.getElementById('todoInput');
+  if(!input.value.trim())return;
+  const li=document.createElement('li');
+  li.innerHTML='<span onclick="this.parentElement.classList.toggle(\\'done\\')">'+input.value+'</span><button class="del" onclick="this.parentElement.remove()">✕</button>';
+  document.getElementById('todoList').appendChild(li);
+  input.value='';
+}
+\x3C/script>`}},
+{tag:"CSS + JS",requires:['css','js'],en:{t:"Build an Interactive Animated Card",b:`<b>🎯 Combine CSS styling + JavaScript interactivity</b><br><br>
+Build a product card that responds to user interaction. CSS handles the visual design and animations. JavaScript adds interactivity like toggling a like button and changing theme.<br><br>
+<b>Requirements:</b><br>
+• Beautiful CSS card with gradient, shadows, transitions<br>
+• CSS hover animation on the card (lift effect)<br>
+• JS: Like button that toggles heart icon and count<br>
+• JS: Theme toggle (dark/light mode) using CSS variables`,
+sim:`<style>
+  :root{--bg:#f0f0f5;--card:#fff;--text:#333;}
+  .dark{--bg:#1a1a2e;--card:#16213e;--text:#eee;}
+  body{font-family:sans-serif;background:var(--bg);display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;transition:background .3s;}
+  .card{background:var(--card);border-radius:20px;padding:24px;width:300px;box-shadow:0 8px 30px rgba(0,0,0,.15);transition:transform .3s,box-shadow .3s;}
+  .card:hover{transform:translateY(-8px);box-shadow:0 12px 40px rgba(0,0,0,.25);}
+  .card img{width:100%;border-radius:12px;}
+  .card h3{color:var(--text);margin:12px 0 4px;}
+  .card .price{color:#7c3aed;font-weight:800;font-size:1.2rem;}
+  .actions{display:flex;justify-content:space-between;margin-top:12px;}
+  .like{background:none;border:none;font-size:1.5rem;cursor:pointer;}
+  .like.liked{color:#e74c3c;}
+  .theme-btn{background:#7c3aed;color:#fff;border:none;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:.8rem;}
+</style>
+<div class="card" id="card">
+  <img src="sneakers.jpg" alt="Nike sneakers">
+  <h3>Nike Air Max</h3>
+  <div class="price">15,000 FCFA</div>
+  <div class="actions">
+    <button class="like" onclick="toggleLike(this)">🤍 <span>0</span></button>
+    <button class="theme-btn" onclick="toggleTheme()">🌙 Dark</button>
   </div>
-  <div class="question" data-answer="cascading style sheets" data-points="10" data-category="CSS">
-    <p><b>Q2:</b> What does CSS stand for?</p>
-    <div contenteditable="true" style="border:2px solid #ccc;padding:8px;">Type your answer here...</div>
+</div>
+\x3Cscript>
+function toggleLike(btn){
+  btn.classList.toggle('liked');
+  const s=btn.querySelector('span');
+  const isLiked=btn.classList.contains('liked');
+  btn.innerHTML=(isLiked?'❤️':'🤍')+' <span>'+(isLiked?1:0)+'</span>';
+}
+function toggleTheme(){
+  document.body.classList.toggle('dark');
+  const btn=document.querySelector('.theme-btn');
+  btn.textContent=document.body.classList.contains('dark')?'☀️ Light':'🌙 Dark';
+}
+\x3C/script>`},
+fr:{t:"Construire une Carte Animée Interactive",b:`<b>🎯 Combiner style CSS + interactivité JavaScript</b><br><br>
+Construisez une carte de produit interactive. CSS pour le design et les animations. JS pour l'interactivité.<br><br>
+<b>Exigences :</b><br>
+• Carte CSS avec dégradé, ombres, transitions<br>
+• Animation CSS au survol (effet de soulèvement)<br>
+• JS : Bouton like qui change d'icône et de compteur<br>
+• JS : Bouton thème sombre/clair avec CSS variables`,sim:`<style>
+  :root{--bg:#f0f0f5;--card:#fff;--text:#333;}
+  .dark{--bg:#1a1a2e;--card:#16213e;--text:#eee;}
+  body{font-family:sans-serif;background:var(--bg);display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;}
+  .card{background:var(--card);border-radius:20px;padding:24px;width:300px;box-shadow:0 8px 30px rgba(0,0,0,.15);transition:transform .3s;}
+  .card:hover{transform:translateY(-8px);}
+  .card img{width:100%;border-radius:12px;}
+  .card h3{color:var(--text);margin:12px 0 4px;}
+  .card .price{color:#7c3aed;font-weight:800;font-size:1.2rem;}
+  .actions{display:flex;justify-content:space-between;margin-top:12px;}
+  .like{background:none;border:none;font-size:1.5rem;cursor:pointer;}
+  .theme-btn{background:#7c3aed;color:#fff;border:none;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:.8rem;}
+</style>
+<div class="card">
+  <img src="sneakers.jpg" alt="Baskets Nike">
+  <h3>Nike Air Max</h3>
+  <div class="price">15 000 FCFA</div>
+  <div class="actions">
+    <button class="like" onclick="toggleLike(this)">🤍 <span>0</span></button>
+    <button class="theme-btn" onclick="toggleTheme()">🌙 Sombre</button>
   </div>
-  <div class="question" data-answer="javascript" data-points="10" data-category="JS">
-    <p><b>Q3:</b> What language runs in the browser?</p>
-    <div contenteditable="true" style="border:2px solid #ccc;padding:8px;">Type your answer here...</div>
-  </div>
-  <button>Check Answers</button>
-  <output id="score">0/30</output>
-</body>
-</html>`}}
+</div>
+\x3Cscript>
+function toggleLike(btn){
+  btn.classList.toggle('liked');
+  const s=btn.querySelector('span');
+  const isLiked=btn.classList.contains('liked');
+  btn.innerHTML=(isLiked?'❤️':'🤍')+' <span>'+(isLiked?1:0)+'</span>';
+}
+function toggleTheme(){document.body.classList.toggle('dark');}
+\x3C/script>`}},
+{tag:"HTML + CSS + JS",requires:['html','css','js'],en:{t:"Build a Complete Mini Website",b:`<b>🎯 Master all three skills: HTML + CSS + JavaScript</b><br><br>
+Build a complete mini-portfolio website with a nav, hero section, features grid, and contact form. Everything should be styled beautifully and have interactive elements.<br><br>
+<b>Requirements:</b><br>
+• HTML: semantic tags (header, nav, main, section, footer)<br>
+• CSS: full-page styling, grid layout, responsive design<br>
+• JS: mobile menu toggle, smooth scroll, form validation<br>
+• At least 3 sections with different content types`,
+sim:`<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:sans-serif;color:#333;}
+  nav{background:#7c3aed;color:#fff;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;}
+  nav h2{font-size:1.1rem;}
+  nav .menu-btn{background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;display:none;}
+  .hero{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;text-align:center;padding:80px 20px;}
+  .hero h1{font-size:2rem;margin-bottom:10px;}
+  .hero p{opacity:.9;max-width:500px;margin:0 auto 20px;}
+  .hero button{padding:12px 30px;background:#fff;color:#7c3aed;border:none;border-radius:10px;font-weight:800;cursor:pointer;}
+  .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;padding:40px 24px;max-width:800px;margin:0 auto;}
+  .feat{background:#f7f4ff;border-radius:14px;padding:20px;text-align:center;}
+  .feat .icon{font-size:2rem;margin-bottom:8px;}
+  footer{background:#1a1a2e;color:#fff;text-align:center;padding:20px;font-size:.85rem;}
+  @media(max-width:600px){nav .menu-btn{display:block;}}
+</style>
+<nav><h2>🌱 My Portfolio</h2><button class="menu-btn" onclick="this.nextElementSibling?.classList.toggle('show')">☰</button></nav>
+<section class="hero">
+  <h1>Hi, I'm Junior!</h1>
+  <p>I build beautiful websites with HTML, CSS, and JavaScript.</p>
+  <button>Contact Me</button>
+</section>
+<section class="features">
+  <div class="feat"><div class="icon">📄</div><h3>HTML</h3><p>Clean semantic structure</p></div>
+  <div class="feat"><div class="icon">🎨</div><h3>CSS</h3><p>Beautiful responsive design</p></div>
+  <div class="feat"><div class="icon">⚡</div><h3>JavaScript</h3><p>Interactive experiences</p></div>
+</section>
+<footer>© 2026 Junior Kamga. Built with ❤️</footer>`},
+fr:{t:"Construire un Mini Site Web Complet",b:`<b>🎯 Maîtriser les trois compétences : HTML + CSS + JavaScript</b><br><br>
+Construisez un mini site portfolio complet avec nav, héros, grille de fonctionnalités et formulaire de contact.<br><br>
+<b>Exigences :</b><br>
+• HTML : balises sémantiques (header, nav, main, section, footer)<br>
+• CSS : styling complet, layout grille, design responsive<br>
+• JS : menu mobile, scroll fluide, validation formulaire<br>
+• Au moins 3 sections`,sim:`<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:sans-serif;color:#333;}
+  nav{background:#7c3aed;color:#fff;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;}
+  nav h2{font-size:1.1rem;}
+  .hero{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;text-align:center;padding:80px 20px;}
+  .hero h1{font-size:2rem;margin-bottom:10px;}
+  .hero p{opacity:.9;max-width:500px;margin:0 auto 20px;}
+  .hero button{padding:12px 30px;background:#fff;color:#7c3aed;border:none;border-radius:10px;font-weight:800;cursor:pointer;}
+  .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;padding:40px 24px;max-width:800px;margin:0 auto;}
+  .feat{background:#f7f4ff;border-radius:14px;padding:20px;text-align:center;}
+  footer{background:#1a1a2e;color:#fff;text-align:center;padding:20px;font-size:.85rem;}
+</style>
+<nav><h2>🌱 Mon Portfolio</h2></nav>
+<section class="hero"><h1>Salut, je suis Junior !</h1><p>Je construis de beaux sites web.</p><button>Contactez-moi</button></section>
+<section class="features">
+  <div class="feat"><div>📄</div><h3>HTML</h3></div>
+  <div class="feat"><div>🎨</div><h3>CSS</h3></div>
+  <div class="feat"><div>⚡</div><h3>JavaScript</h3></div>
+</section>
+<footer>© 2026 Junior Kamga</footer>`}},
+{tag:"HTML + CSS + JS",requires:['html','css','js'],en:{t:"Build a Quiz App",b:`<b>🎯 The ultimate combination project</b><br><br>
+Build a fully functional quiz app with styled UI and JavaScript logic. This tests everything you've learned across all three courses.<br><br>
+<b>Requirements:</b><br>
+• HTML: Quiz structure with questions, options, score display<br>
+• CSS: Beautiful quiz card design, progress bar, result screen<br>
+• JS: Score tracking, answer checking, next question, final results<br>
+• At least 5 questions with correct answers stored in data attributes`,
+sim:`<style>
+  body{font-family:sans-serif;background:#f0f0f5;display:flex;justify-content:center;padding:40px;}
+  .quiz{background:#fff;border-radius:16px;padding:30px;width:100%;max-width:500px;box-shadow:0 4px 20px rgba(0,0,0,.1);}
+  .quiz h2{color:#7c3aed;margin-bottom:16px;}
+  .q-text{font-size:1.1rem;font-weight:600;margin-bottom:14px;}
+  .options{display:grid;gap:8px;}
+  .opt{padding:12px 16px;border:2px solid #ddd;border-radius:10px;cursor:pointer;font-size:.9rem;text-align:left;background:#fff;}
+  .opt:hover{border-color:#7c3aed;background:#f7f4ff;}
+  .opt.selected{border-color:#7c3aed;background:#ede9fe;font-weight:700;}
+  .progress{height:8px;background:#eee;border-radius:4px;margin-bottom:20px;}
+  .progress-fill{height:100%;background:#7c3aed;border-radius:4px;transition:width .3s;}
+  .score{text-align:center;font-size:1.5rem;font-weight:800;color:#7c3aed;margin-top:16px;}
+</style>
+<div class="quiz" id="quiz">
+  <div class="progress"><div class="progress-fill" id="bar" style="width:0%"></div></div>
+  <div class="q-text" id="qText"></div>
+  <div class="options" id="opts"></div>
+  <div class="score" id="scoreBox" style="display:none"></div>
+</div>
+\x3Cscript>
+const qs=[
+  {q:"What does HTML stand for?",o:["Hyper Text Markup Language","Home Tool Markup Language","Hyperlinks Text Mode Language"],a:0},
+  {q:"Which CSS property changes text color?",o:["font-color","text-color","color"],a:2},
+  {q:"Which JS method selects an element?",o:["document.getElement()","document.querySelector()","document.findElement()"],a:1},
+  {q:"What does CSS stand for?",o:["Creative Style Sheets","Cascading Style Sheets","Computer Style Sheets"],a:1},
+  {q:"Inside which HTML tag do we put JavaScript?",o:["<js>","\x3Cscript>","<javascript>"],a:1}
+];
+let i=0,score=0;
+function showQ(){
+  if(i>=qs.length){
+    document.getElementById('qText').textContent='Quiz Complete!';
+    document.getElementById('opts').innerHTML='';
+    document.getElementById('scoreBox').style.display='block';
+    document.getElementById('scoreBox').textContent=score+'/'+qs.length+' Correct!';
+    return;
+  }
+  document.getElementById('bar').style.width=(i/qs.length*100)+'%';
+  document.getElementById('qText').textContent=qs[i].q;
+  document.getElementById('opts').innerHTML=qs[i].o.map((o,j)=>
+    '<button class="opt" onclick="check('+j+')">'+o+'</button>'
+  ).join('');
+}
+function check(j){
+  if(j===qs[i].a)score++;
+  i++;showQ();
+}
+showQ();
+\x3C/script>`},
+fr:{t:"Construire une App de Quiz",b:`<b>🎯 Le projet de combinaison ultime</b><br><br>
+Construisez une app de quiz fonctionnelle avec UI stylée et logique JavaScript.<br><br>
+<b>Exigences :</b><br>
+• HTML : Structure de quiz avec questions, options, score<br>
+• CSS : Design carte quiz, barre de progression, écran résultat<br>
+• JS : Suivi du score, vérification des réponses, résultat final<br>
+• Au moins 5 questions`,sim:`<style>
+  body{font-family:sans-serif;background:#f0f0f5;display:flex;justify-content:center;padding:40px;}
+  .quiz{background:#fff;border-radius:16px;padding:30px;width:100%;max-width:500px;box-shadow:0 4px 20px rgba(0,0,0,.1);}
+  .quiz h2{color:#7c3aed;margin-bottom:16px;}
+  .q-text{font-size:1.1rem;font-weight:600;margin-bottom:14px;}
+  .options{display:grid;gap:8px;}
+  .opt{padding:12px 16px;border:2px solid #ddd;border-radius:10px;cursor:pointer;font-size:.9rem;text-align:left;background:#fff;}
+  .opt:hover{border-color:#7c3aed;background:#f7f4ff;}
+  .progress{height:8px;background:#eee;border-radius:4px;margin-bottom:20px;}
+  .progress-fill{height:100%;background:#7c3aed;border-radius:4px;}
+  .score{text-align:center;font-size:1.5rem;font-weight:800;color:#7c3aed;margin-top:16px;}
+</style>
+<div class="quiz" id="quiz">
+  <div class="progress"><div class="progress-fill" id="bar" style="width:0%"></div></div>
+  <div class="q-text" id="qText"></div>
+  <div class="options" id="opts"></div>
+  <div class="score" id="scoreBox" style="display:none"></div>
+</div>
+\x3Cscript>
+const qs=[
+  {q:"Que signifie HTML ?",o:["Hyper Text Markup Language","Home Tool Markup Language","Hyperlinks Text Mode"],a:0},
+  {q:"Quelle propriété CSS change la couleur du texte ?",o:["font-color","text-color","color"],a:2},
+  {q:"Quelle méthode JS sélectionne un élément ?",o:["document.getElement()","document.querySelector()","document.findElement()"],a:1}
+];
+let i=0,score=0;
+function showQ(){
+  if(i>=qs.length){
+    document.getElementById('qText').textContent='Quiz Terminé !';
+    document.getElementById('opts').innerHTML='';
+    document.getElementById('scoreBox').style.display='block';
+    document.getElementById('scoreBox').textContent=score+'/'+qs.length+' Correct !';
+    return;
+  }
+  document.getElementById('bar').style.width=(i/qs.length*100)+'%';
+  document.getElementById('qText').textContent=qs[i].q;
+  document.getElementById('opts').innerHTML=qs[i].o.map((o,j)=>
+    '<button class="opt" onclick="check('+j+')">'+o+'</button>'
+  ).join('');
+}
+function check(j){if(j===qs[i].a)score++;i++;showQ();}
+showQ();
+\x3C/script>`}}
 ];
 
-const practicalQuiz = shortQuiz([
- {en:{q:"What tag creates a form in HTML?",o:["&lt;form&gt;","&lt;input&gt;","&lt;fieldset&gt;","&lt;button&gt;"],a:0},
- fr:{q:"Quel tag crée un formulaire en HTML ?",o:["&lt;form&gt;","&lt;input&gt;","&lt;fieldset&gt;","&lt;button&gt;"],a:0}},
- {en:{q:"Which attribute connects a label to its input?",o:["href","for/id","link","connect"],a:1},
- fr:{q:"Quel attribut connecte un label à son input ?",o:["href","for/id","link","connect"],a:1}},
- {en:{q:"What does data-* attribute allow?",o:["Storing custom data on elements","Deleting data","Formatting text","Creating databases"],a:0},
- fr:{q:"Que permet l'attribut data-* ?",o:["Stocker des données personnalisées","Supprimer des données","Formater le texte","Créer des bases de données"],a:0}},
- {en:{q:"What is the purpose of alt text on images?",o:["Decoration","Accessibility — describes image if it fails to load","Speed up loading","Change image color"],a:1},
- fr:{q:"Quel est le but du texte alt sur les images ?",o:["Décoration","Accessibilité","Accélérer le chargement","Changer la couleur"],a:1}},
- {en:{q:"Which tag is best for tabular data?",o:["&lt;div&gt;","&lt;table&gt;","&lt;list&gt;","&lt;grid&gt;"],a:1},
- fr:{q:"Quel tag est le mieux pour les données tabulaires ?",o:["&lt;div&gt;","&lt;table&gt;","&lt;list&gt;","&lt;grid&gt;"],a:1}},
- {en:{q:"What does contenteditable do?",o:["Makes text bold","Makes any element directly editable by the user","Deletes the element","Changes font color"],a:1},
- fr:{q:"Que fait contenteditable ?",o:["Met le texte en gras","Rend un élément éditable","Supprime l'élément","Change la couleur"],a:1}},
- {en:{q:"Which element displays calculation results?",o:["&lt;calc&gt;","&lt;output&gt;","&lt;result&gt;","&lt;data&gt;"],a:1},
- fr:{q:"Quel élément affiche les résultats de calculs ?",o:["&lt;calc&gt;","&lt;output&gt;","&lt;result&gt;","&lt;data&gt;"],a:1}},
- {en:{q:"Why use fieldset and legend in forms?",o:["For styling only","To group related inputs and label the group","To add JavaScript","To create tables"],a:1},
- fr:{q:"Pourquoi utiliser fieldset et legend ?",o:["Pour le style","Pour grouper les inputs liés","Pour JavaScript","Pour créer des tableaux"],a:1}},
- {en:{q:"How do you read data-* attributes in JS?",o:["element.data","element.dataset","element.getAttribute","element.read"],a:1},
- fr:{q:"Comment lire les attribut data-* en JS ?",o:["element.data","element.dataset","element.getAttribute","element.read"],a:1}},
- {en:{q:"What is figcaption used for?",o:["Adding images","Providing a caption for a figure element","Creating forms","Styling tables"],a:1},
- fr:{q:"À quoi sert figcaption ?",o:["Ajouter des images","Donner une légende à un figure","Créer des formulaires","Styliser les tableaux"],a:1}}
-]);
+const practicalQuiz = [
+ {en:{q:"Which combination of skills does a full-stack developer need?",o:["HTML + CSS + JavaScript","Only Python","Only SQL","Only design"],a:0},
+  fr:{q:"Quelle combinaison de compétences un développeur full-stack Needs-t-il ?",o:["HTML + CSS + JavaScript","Uniquement Python","Uniquement SQL","Uniquement design"],a:0}},
+ {en:{q:"What is the first step before building a web page?",o:["Write CSS","Plan the HTML structure","Buy a domain","Install a framework"],a:1},
+  fr:{q:"Quelle est la première étape avant de construire une page web ?",o:["Écrire du CSS","Planifier la structure HTML","Acheter un domaine","Installer un framework"],a:1}},
+ {en:{q:"Which CSS property makes elements interactive with hover effects?",o:["color","transition","display","font-size"],a:1},
+  fr:{q:"Quelle propriété CSS rend les éléments interactifs avec des effets hover ?",o:["color","transition","display","font-size"],a:1}},
+ {en:{q:"What does DOM stand for?",o:["Document Object Model","Data Object Manager","Digital Online Media","Direct Output Module"],a:0},
+  fr:{q:"Que signifie DOM ?",o:["Document Object Model","Data Object Manager","Digital Online Media","Direct Output Module"],a:0}},
+ {en:{q:"Which JavaScript method selects an element by its ID?",o:["document.querySelector()","document.getElementById()","document.findElement()","document.getElement()"],a:1},
+  fr:{q:"Quelle méthode JavaScript sélectionne un élément par son ID ?",o:["document.querySelector()","document.getElementById()","document.findElement()","document.getElement()"],a:1}}
+];
 
 const COURSES = [
  {id:'html', order:1, icon:'📄', color:'#FF6B6B', price:0, free:true,
@@ -2378,8 +2547,8 @@ const COURSES = [
   lessons: mobileLessons, quiz: mobileQuiz, full:false, sandboxLang:'other'},
  {id:'practical', order:12, icon:'✏️', color:'#FF9800', price:0, free:true,
   name:{en:'Practical Exercises & Correction',fr:'Exercices Pratiques & Correction'}, teacher:{en:'All Teachers',fr:'Tous les Enseignants'}, avatar:'📝',
-  vibe:{en:'Hands-on practice with real-world exercises. Every lesson has a detailed exercise with a full correction. Learn by doing!',
-        fr:"Pratique concrète avec des exercices réels. Chaque leçon a un exercice détaillé avec une correction complète. Apprends en faisant !"},
+  vibe:{en:'Combine your HTML, CSS, and JS skills in real-world projects! Each exercise requires you to pass prerequisite courses first. Build complete projects by combining multiple skills.',
+          fr:"Combiner tes compétences HTML, CSS et JS dans des projets réels ! Chaque exercice nécessite de passer les cours préalables d'abord. Construis des projets complets en combinant plusieurs compétences."},
   lessons: practicalLessons, quiz: practicalQuiz, full:true, sandboxLang:'html'}
 ];
 
@@ -2737,8 +2906,8 @@ const TIPS = {
          fr:["Flou en entrée, flou en sortie.","Montre-lui des exemples, il te remerciera","Structure ta demande, structure la réponse"]},
   mobile:{en:["Thumbs, not mice. Design for thumbs.","Your app lives in someone's pocket now","Offline mode or it doesn't count"],
           fr:["Des pouces, pas des souris.","Ton app vit dans la poche de quelqu'un maintenant","Le mode hors-ligne ou ça ne compte pas"]},
-  practical:{en:["Practice makes permanent!","Read the correction even if you got it right","Every exercise is a real interview question"],
-             fr:["La pratique rend permanent !","Même si tu as réussi, lis la correction","Chaque exercice est une vraie question d'entretien"]}
+  practical:{en:["Each exercise combines 2-3 courses you've already passed","You need to pass HTML, CSS, and JS courses to see all exercises","Build real projects using everything you've learned"],
+             fr:["Chaque exercice combine 2-3 cours que tu as déjà réussis","Tu dois passer les cours HTML, CSS et JS pour voir tous les exercices","Construis de vrais projets avec tout ce que tu as appris"]}
 };
 
 /* ---------- LOCKED-STATE MESSAGES, in each teacher's voice ---------- */
@@ -2754,21 +2923,23 @@ const LOCK_MSG = {
   git:{en:"This branch is protected. Unlock to merge in.", fr:"Cette branche est protégée. Débloque pour merger."},
   hacking:{en:"Even I need permission to get in here 🥷", fr:"Même moi j'ai besoin de permission pour entrer ici 🥷"},
   prompt:{en:"Ask nicely... with a payment 🤖", fr:"Demande gentiment... avec un paiement 🤖"},
-  mobile:{en:"Ehh! This app isn't installed yet — unlock it first!", fr:"Ehhh ! Cette app n'est pas encore installée — débloque-la d'abord !"}
- },
- gate:{
-  html:{en:"", fr:""},
-  css:{en:"Mboa! Pass the previous quiz first, then we talk color 🎨", fr:"Mboa ! Réussis d'abord le quiz précédent, après on parle couleurs 🎨"},
-  js:{en:"Hold up — clear the last quiz before you touch this one 💨", fr:"Attends — termine le dernier quiz avant de toucher à celui-ci 💨"},
-  react:{en:"You can't render this yet. Pass the previous quiz first.", fr:"Tu ne peux pas encore accéder à ça. Réussis d'abord le quiz précédent."},
-  backend:{en:"Access requires clearance. Pass the previous quiz.", fr:"L'accès nécessite une habilitation. Réussis le quiz précédent."},
-  python:{en:"One step at a time, small — pass the previous quiz first 🐍", fr:"Une étape à la fois, small — réussis d'abord le quiz précédent 🐍"},
-  sql:{en:"This table is locked until the previous quiz passes.", fr:"Cette table est verrouillée jusqu'à la réussite du quiz précédent."},
-  git:{en:"Merge blocked — previous quiz check failed.", fr:"Merge bloqué — le quiz précédent n'est pas encore réussi."},
-  hacking:{en:"Nice try. Pass the previous quiz before you go further 🥷", fr:"Bien essayé. Réussis le quiz précédent avant d'aller plus loin 🥷"},
-  prompt:{en:"Insufficient context. Pass the previous quiz to proceed.", fr:"Contexte insuffisant. Réussis le quiz précédent pour continuer."},
-  mobile:{en:"App locked — clear the previous quiz to update!", fr:"App verrouillée — réussis le quiz précédent pour mettre à jour !"}
- }
+   mobile:{en:"Ehh! This app isn't installed yet — unlock it first!", fr:"Ehhh ! Cette app n'est pas encore installée — débloque-la d'abord !"},
+   practical:{en:"Combine your skills in real projects! Unlock to access.", fr:"Combines tes compétences dans de vrais projets ! Débloque pour accéder."}
+  },
+  gate:{
+   html:{en:"", fr:""},
+   css:{en:"Mboa! Pass the previous quiz first, then we talk color 🎨", fr:"Mboa ! Réussis d'abord le quiz précédent, après on parle couleurs 🎨"},
+   js:{en:"Hold up — clear the last quiz before you touch this one 💨", fr:"Attends — termine le dernier quiz avant de toucher à celui-ci 💨"},
+   react:{en:"You can't render this yet. Pass the previous quiz first.", fr:"Tu ne peux pas encore accéder à ça. Réussis d'abord le quiz précédent."},
+   backend:{en:"Access requires clearance. Pass the previous quiz.", fr:"L'accès nécessite une habilitation. Réussis le quiz précédent."},
+   python:{en:"One step at a time, small — pass the previous quiz first 🐍", fr:"Une étape à la fois, small — réussis d'abord le quiz précédent 🐍"},
+   sql:{en:"This table is locked until the previous quiz passes.", fr:"Cette table est verrouillée jusqu'à la réussite du quiz précédent."},
+   git:{en:"Merge blocked — previous quiz check failed.", fr:"Merge bloqué — le quiz précédent n'est pas encore réussi."},
+   hacking:{en:"Nice try. Pass the previous quiz before you go further 🥷", fr:"Bien essayé. Réussis le quiz précédent avant d'aller plus loin 🥷"},
+   prompt:{en:"Insufficient context. Pass the previous quiz to proceed.", fr:"Contexte insuffisant. Réussis le quiz précédent pour continuer."},
+   mobile:{en:"App locked — clear the previous quiz to update!", fr:"App verrouillée — réussis le quiz précédent pour mettre à jour !"},
+   practical:{en:"Pass the HTML, CSS, and JS quizzes first to unlock combination exercises!", fr:"Réussis les quiz HTML, CSS et JS d'abord pour débloquer les exercices combinés !"}
+  }
 };
 
 
@@ -3194,6 +3365,10 @@ function renderCourseDetail(id){
     html += `<div class="preview-note">${T[LANG].previewNote}</div>`;
   }
   c.lessons.forEach((l,i)=>{
+    if(id==='practical' && l.requires){
+      const allPassed = l.requires.every(reqId => STATE.quizScores[reqId]?.passed);
+      if(!allPassed) return;
+    }
     const opened = STATE.progress[id].opened.includes(i);
     html += `<div class="lesson-card ${opened?'open':''}" id="lc-${id}-${i}" style="border-left:4px solid ${c.color}">
       <div class="lesson-head" style="--c:${c.color}" onclick="toggleLesson('${id}',${i})">
@@ -3378,7 +3553,6 @@ function openPay(id){
     ? 'Send the amount below via MTN or Orange Money, then submit your transaction reference. The admin will approve and your course unlocks instantly.'
     : 'Envoyez le montant ci-dessous via MTN ou Orange Money, puis soumettez votre référence. L\'admin approuve et votre cours se débloque immédiatement.';
   document.getElementById('payPriceInline').textContent = c.price.toLocaleString()+' FCFA';
-  document.getElementById('payPhoneLabel').textContent = LANG==='en' ? '📞 Send payment to' : '📞 Envoyez le paiement à';
   document.getElementById('payRefLabel').textContent = LANG==='en' ? 'MTN / Orange transaction reference' : 'Référence de transaction MTN / Orange';
   document.getElementById('payNameLabel').textContent = LANG==='en' ? 'Your name' : 'Votre nom';
   document.getElementById('payPendingNote').textContent = LANG==='en'
@@ -3393,12 +3567,31 @@ function openPay(id){
   document.getElementById('redeemErr').classList.remove('show');
   const msgEl = document.getElementById('payConfirmMsg');
   msgEl.classList.remove('show-success','show-error'); msgEl.textContent='';
+  // Show MTN number by default
+  const phones = loadPhones();
+  const mtn = phones.find(p=>p.type==='mtn' && p.active);
+  const display = document.getElementById('payPhoneDisplay');
+  const phoneLabel = document.getElementById('payPhoneLabel');
+  if(mtn){
+    display.textContent = mtn.num;
+    phoneLabel.textContent = LANG==='en' ? '📱 Send to MTN MoMo' : '📱 Envoyer au MTN MoMo';
+  }
   document.getElementById('payModal').classList.add('show');
 }
 function closePay(){ document.getElementById('payModal').classList.remove('show'); }
 function selectMomo(el, which){
   document.querySelectorAll('.momo-option').forEach(o=>o.classList.remove('active'));
   el.classList.add('active');
+  const phones = loadPhones();
+  const display = document.getElementById('payPhoneDisplay');
+  const label = document.getElementById('payPhoneLabel');
+  if(which === 'mtn'){
+    const mtn = phones.find(p=>p.type==='mtn' && p.active);
+    if(mtn){ display.textContent = mtn.num; label.textContent = LANG==='en' ? '📱 Send to MTN MoMo' : '📱 Envoyer au MTN MoMo'; }
+  } else {
+    const om = phones.find(p=>p.type==='orange' && p.active);
+    if(om){ display.textContent = om.num; label.textContent = LANG==='en' ? '📱 Send to Orange Money' : '📱 Envoyer à Orange Money'; }
+  }
 }
 
 function submitPaymentRequest(){
@@ -3903,7 +4096,7 @@ function renderAdminPrices(){
   `).join('');
 }
 
-function saveAllPrices(){
+async function saveAllPrices(){
   COURSES.forEach(c => {
     const input = document.getElementById('price-'+c.id);
     if(input){
@@ -3914,11 +4107,12 @@ function saveAllPrices(){
   });
   const pricesData = {};
   COURSES.forEach(c => { pricesData[c.id] = {price:c.price, free:c.free}; });
-  fbSet('config', 'coursePrices', pricesData);
+  await fbSet('config', 'coursePrices', pricesData);
   const msg = document.getElementById('priceSaveMsg');
   msg.style.display = 'block';
-  msg.textContent = '✅ All prices saved! Reload to see changes on course cards.';
+  msg.textContent = '✅ All prices saved!';
   renderCourseGrid();
+  renderAdminPrices();
   addNotif('💰 Prices Updated', 'Course prices have been updated by the admin.');
   setTimeout(()=>{ msg.style.display='none'; }, 3000);
 }
@@ -3969,8 +4163,15 @@ function changeAdminPin(){
    PAYMENT PHONE NUMBERS MANAGEMENT
    ============================================================ */
 function loadPhones(){
-  try { return JSON.parse(localStorage.getItem('crPhones')) || [{num:'+237 651 908 060',label:'Main',active:true}]; }
-  catch(e){ return [{num:'+237 651 908 060',label:'Main',active:true}]; }
+  try {
+    const saved = JSON.parse(localStorage.getItem('crPhones'));
+    if(saved && Array.isArray(saved)){
+      // Migrate old format if needed
+      if(saved.length > 0 && !saved[0].type) return saved;
+      return saved;
+    }
+    return [{num:'+237 651 908 060',type:'mtn',active:true},{num:'+237 651 908 060',type:'orange',active:true}];
+  } catch(e){ return [{num:'+237 651 908 060',type:'mtn',active:true},{num:'+237 651 908 060',type:'orange',active:true}]; }
 }
 function savePhones(p){
   localStorage.setItem('crPhones', JSON.stringify(p));
@@ -3987,58 +4188,48 @@ async function loadPhonesFromFirebase(){
 }
 
 function renderAdminPhones(){
-  const wrap = document.getElementById('adminPhoneList');
-  if(!wrap) return;
   const phones = loadPhones();
-  wrap.innerHTML = phones.map((p,i)=>`
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px 12px;background:#f7f4ff;border-radius:10px;">
-      <span style="font-size:1rem;">📱</span>
-      <span style="font-weight:800;font-size:.88rem;min-width:160px;">${p.num}</span>
-      <span style="font-size:.78rem;color:var(--muted);min-width:80px;">${p.label}</span>
-      <span style="font-size:.72rem;padding:2px 8px;border-radius:10px;${p.active?'background:#d4edda;color:#155724;':'background:#f8d7da;color:#721c24;'}">${p.active?'Active':'Inactive'}</span>
-      <button class="admin-mini-btn" onclick="togglePhone(${i})">${p.active?'Deactivate':'Activate'}</button>
-      <button class="admin-mini-btn danger" onclick="removePhone(${i})">✕</button>
-    </div>
-  `).join('');
+  const mtn = phones.find(p=>p.type==='mtn');
+  const om = phones.find(p=>p.type==='orange');
+  const mtnInput = document.getElementById('adminMtnPhone');
+  const omInput = document.getElementById('adminOrangePhone');
+  if(mtnInput && mtn) mtnInput.value = mtn.num || '';
+  if(omInput && om) omInput.value = om.num || '';
 }
 
-function addPhoneNumber(){
-  const num = document.getElementById('newPhoneInput').value.trim();
-  const label = document.getElementById('newPhoneName').value.trim() || 'Secondary';
-  if(!num){ alert('Enter a phone number.'); return; }
-  const phones = loadPhones();
-  phones.push({num, label, active:true});
+function savePaymentPhones(){
+  const mtnNum = document.getElementById('adminMtnPhone').value.trim();
+  const omNum = document.getElementById('adminOrangePhone').value.trim();
+  if(!mtnNum && !omNum){ showPhoneMsg('⚠️ Enter at least one number.'); return; }
+  const phones = [];
+  if(mtnNum) phones.push({num:mtnNum, type:'mtn', active:true});
+  if(omNum) phones.push({num:omNum, type:'orange', active:true});
   savePhones(phones);
-  document.getElementById('newPhoneInput').value = '';
-  document.getElementById('newPhoneName').value = '';
-  renderAdminPhones();
-  updatePaymentDisplay();
-  showPhoneMsg('✅ Phone number added!');
+  showPhoneMsg('✅ Phone numbers saved!');
 }
+
+function addPhoneNumber(){ savePaymentPhones(); }
 
 function togglePhone(i){
   const phones = loadPhones();
-  phones[i].active = !phones[i].active;
+  if(phones[i]) phones[i].active = !phones[i].active;
   savePhones(phones);
-  renderAdminPhones();
-  updatePaymentDisplay();
 }
 
 function removePhone(i){
-  if(!confirm('Remove this phone number?')) return;
   const phones = loadPhones();
   phones.splice(i,1);
   savePhones(phones);
-  renderAdminPhones();
-  updatePaymentDisplay();
-  showPhoneMsg('🗑️ Phone number removed.');
 }
 
 function updatePaymentDisplay(){
-  const phones = loadPhones().filter(p=>p.active);
+  const phones = loadPhones();
+  const mtn = phones.find(p=>p.type==='mtn' && p.active);
+  const om = phones.find(p=>p.type==='orange' && p.active);
   const display = document.getElementById('payPhoneDisplay');
-  if(display && phones.length > 0){
-    display.textContent = phones[0].num;
+  if(display){
+    if(mtn) display.textContent = mtn.num;
+    else if(om) display.textContent = om.num;
   }
 }
 
@@ -4780,15 +4971,18 @@ function listenOnlineUsers(callback){
   initParticles();
   launchConfetti(15);
 
-  // Check if user is already logged in via Firebase Auth
-  auth.onAuthStateChanged(async (user) => {
-    if(user && !STATE.user){
-      STATE.user = user.displayName || user.email.split('@')[0];
-      STATE.userEmail = user.email;
-      STATE.uid = user.uid;
-      await loadStateFromFirebase();
-      renderNotifDot();
-    }
+  // Wait for Firebase Auth to resolve session first
+  await new Promise(resolve => {
+    const unsub = auth.onAuthStateChanged(async (user) => {
+      if(user && !STATE.user){
+        STATE.user = user.displayName || user.email.split('@')[0];
+        STATE.userEmail = user.email;
+        STATE.uid = user.uid;
+        await loadStateFromFirebase();
+        renderNotifDot();
+      }
+      resolve();
+    });
   });
 
   await loadFirebaseData();
@@ -4799,7 +4993,6 @@ function listenOnlineUsers(callback){
     startHeartbeat();
     showHome();
     renderAll();
-    // Real-time online counter
     listenOnlineUsers(users => {
       const el = document.getElementById('onlineCount');
       if(el) el.textContent = users.length;
