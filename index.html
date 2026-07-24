@@ -3903,7 +3903,8 @@ function renderAdminPending(){
   }).join('');
 }
 
-function renderAdminStudents(){
+async function renderAdminStudents(){
+  await loadAllUsersFromFirebase();
   const body = document.getElementById('adminStudentsBody');
   const allUsers = loadAllUsers();
   if(allUsers.length === 0){
@@ -4267,9 +4268,27 @@ function renderGiftCourses(){
 function loadAllUsers(){
   try { return JSON.parse(localStorage.getItem('crAllUsers')) || []; } catch(e){ return []; }
 }
-function saveAllUsers(u){
+async function saveAllUsers(u){
   localStorage.setItem('crAllUsers', JSON.stringify(u));
-  fbSet('config', 'allUsers', {users: u});
+  // Merge with Firebase to prevent race conditions from losing users
+  try {
+    const existing = await fbGet('config', 'allUsers');
+    const existingUsers = (existing && existing.users) ? existing.users : [];
+    const merged = [...existingUsers];
+    u.forEach(newUser => {
+      if(!merged.find(e => e.email === newUser.email || e.name === newUser.name)){
+        merged.push(newUser);
+      } else {
+        const idx = merged.findIndex(e => e.email === newUser.email || e.name === newUser.name);
+        if(idx !== -1) merged[idx] = {...merged[idx], ...newUser};
+      }
+    });
+    await fbSet('config', 'allUsers', {users: merged});
+    localStorage.setItem('crAllUsers', JSON.stringify(merged));
+  } catch(e) {
+    console.error('saveAllUsers merge error:', e);
+    await fbSet('config', 'allUsers', {users: u});
+  }
 }
 
 async function loadAllUsersFromFirebase(){
